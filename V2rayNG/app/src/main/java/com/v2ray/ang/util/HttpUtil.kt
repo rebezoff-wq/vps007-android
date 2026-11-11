@@ -1,8 +1,11 @@
 package com.v2ray.ang.util
 
+import android.annotation.SuppressLint
+import android.os.Build
+import android.provider.Settings
+import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.AppConfig.LOOPBACK
-import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.dto.UrlContentRequest
 import okhttp3.Credentials
 import okhttp3.Headers
@@ -21,6 +24,31 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 
 object HttpUtil {
+
+    /** v2rayNG release this fork is based on; reported in the subscription User-Agent. */
+    private const val UPSTREAM_CLIENT_VERSION = "2.3.15"
+
+    /**
+     * Adds Remnawave HWID headers (x-hwid, x-device-os, x-ver-os, x-device-model) so the panel
+     * can count devices against the subscription's device limit. ANDROID_ID is per app signing key
+     * and per user, so it is stable for this app and not shared with other apps.
+     * Skipped silently when the application context is unavailable (e.g. JVM unit tests).
+     */
+    @SuppressLint("HardwareIds")
+    private fun applyRemnawaveDeviceHeaders(requestBuilder: Request.Builder) {
+        val hwid = runCatching {
+            Settings.Secure.getString(AngApplication.application.contentResolver, Settings.Secure.ANDROID_ID)
+        }.getOrNull()
+        if (hwid.isNullOrBlank()) return
+        try {
+            requestBuilder.header("x-hwid", hwid)
+            requestBuilder.header("x-device-os", "Android")
+            requestBuilder.header("x-ver-os", Build.VERSION.RELEASE.orEmpty())
+            requestBuilder.header("x-device-model", "${Build.MANUFACTURER} ${Build.MODEL}".trim())
+        } catch (e: IllegalArgumentException) {
+            LogUtil.w(AppConfig.TAG, "Skipping device headers with invalid characters", e)
+        }
+    }
 
     /**
      * Converts the domain part of a URL string to its IDN (Punycode, ASCII Compatible Encoding) format.
@@ -157,7 +185,8 @@ object HttpUtil {
             if (currentUrl == null) continue
             val client = buildOkHttpClient(request.timeout, request.httpPort, request.proxyUsername, request.proxyPassword, followRedirects = false)
             val finalUserAgent = if (request.userAgent.isNullOrBlank()) {
-                "v2rayNG/${BuildConfig.VERSION_NAME}"
+                // Keep the upstream client signature so Remnawave/Bedolaga serve the v2rayNG subscription format.
+                "v2rayNG/$UPSTREAM_CLIENT_VERSION"
             } else {
                 request.userAgent
             }
@@ -168,6 +197,7 @@ object HttpUtil {
                 .header("Connection", "close")
 
             applyEmbeddedBasicAuthHeader(currentUrl, requestBuilder)
+            applyRemnawaveDeviceHeaders(requestBuilder)
 
 
             val headersMap = JsonUtil.parseHeadersToMap(request.requestHeaders)

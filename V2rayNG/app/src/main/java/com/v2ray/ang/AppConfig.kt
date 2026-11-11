@@ -127,13 +127,19 @@ object AppConfig {
     const val GITHUB_RAW_URL = "https://raw.githubusercontent.com"
     const val GITHUB_DOWNLOAD_URL = "$GITHUB_URL/%s/releases/latest/download"
     const val ANDROID_PACKAGE_NAME_LIST_URL = "$GITHUB_RAW_URL/2dust/androidpackagenamelist/master/proxy.txt"
-    const val APP_URL = "$GITHUB_URL/2dust/v2rayNG"
+    /** VPS 007 fork: public source repo (GPL-3.0 requires publishing the source). Change to your repo. */
+    const val APP_URL = "$GITHUB_URL/CHANGE_ME/vps007-android"
+    /** Upstream project this app is based on (credited on the About screen). */
+    const val UPSTREAM_URL = "$GITHUB_URL/2dust/v2rayNG"
     const val APP_API_URL = "https://api.github.com/repos/2dust/v2rayNG/releases"
-    const val APP_ISSUES_URL = "$APP_URL/issues"
-    const val APP_WIKI_MODE = "$APP_URL/wiki/Mode"
-    const val APP_PRIVACY_POLICY = "$GITHUB_RAW_URL/2dust/v2rayNG/master/CR.md"
+    const val APP_ISSUES_URL = "https://t.me/biggob"
+    const val APP_WIKI_MODE = "$UPSTREAM_URL/wiki/Mode"
+    const val APP_PRIVACY_POLICY = "https://club-007.com/privacy.html"
     const val APP_PROMOTION_URL = "aHR0cHM6Ly85LjIzNDQ1Ni54eXovYWJjLmh0bWw="
-    const val TG_CHANNEL_URL = "https://t.me/github_2dust"
+    const val TG_CHANNEL_URL = "https://t.me/club_007_bot"
+
+    /** Deep link scheme accepted by UrlSchemeActivity, e.g. vps007://install-sub?url=<encoded subscription URL>. */
+    const val URL_SCHEME = "vps007"
     const val DELAY_TEST_URL = "https://www.gstatic.com/generate_204"
     const val DELAY_TEST_URL2 = "https://www.google.com/generate_204"
     const val OBSERVATORY_LEAST_PING_INTERVAL = "3m"
