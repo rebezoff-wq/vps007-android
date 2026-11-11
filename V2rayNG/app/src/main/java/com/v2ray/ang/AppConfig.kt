@@ -128,7 +128,7 @@ object AppConfig {
     const val GITHUB_DOWNLOAD_URL = "$GITHUB_URL/%s/releases/latest/download"
     const val ANDROID_PACKAGE_NAME_LIST_URL = "$GITHUB_RAW_URL/2dust/androidpackagenamelist/master/proxy.txt"
     /** VPS 007 fork: public source repo (GPL-3.0 requires publishing the source). Change to your repo. */
-    const val APP_URL = "$GITHUB_URL/CHANGE_ME/vps007-android"
+    const val APP_URL = "$GITHUB_URL/rebezoff-wq/vps007-android"
     /** Upstream project this app is based on (credited on the About screen). */
     const val UPSTREAM_URL = "$GITHUB_URL/2dust/v2rayNG"
     const val APP_API_URL = "https://api.github.com/repos/2dust/v2rayNG/releases"
