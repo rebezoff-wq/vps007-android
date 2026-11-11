@@ -13,9 +13,11 @@ import androidx.core.app.NotificationCompat
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
+import com.v2ray.ang.dto.TrafficSnapshot
 import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.extension.delay
 import com.v2ray.ang.extension.toSpeedString
+import com.v2ray.ang.helper.MessageHelper
 import com.v2ray.ang.helper.NotificationHelper
 import com.v2ray.ang.ui.main.MainActivity
 import com.v2ray.ang.util.LogUtil
@@ -35,6 +37,8 @@ object NotificationManager {
     private const val QUERY_INTERVAL_MS = 3000L
 
     private var lastQueryTime = 0L
+    private var sessionUp = 0L
+    private var sessionDown = 0L
     private var mBuilder: NotificationCompat.Builder? = null
     private var speedNotificationJob: Job? = null
     private var mNotificationManager: NotificationManager? = null
@@ -44,8 +48,11 @@ object NotificationManager {
      * @param currentConfig The current profile configuration.
      */
     fun startSpeedNotification() {
-        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_SPEED_ENABLED) != true) return
+        // VPS 007: on by default, the home screen shows live speed and session traffic.
+        if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_SPEED_ENABLED, true)) return
         if (speedNotificationJob != null || CoreServiceManager.isRunning() == false) return
+        sessionUp = 0L
+        sessionDown = 0L
 
         var lastZeroSpeed = false
 
@@ -265,6 +272,23 @@ object NotificationManager {
 
         val proxyTotal = proxyUplink + proxyDownlink
         val directTotal = directUplink + directDownlink
+
+        val up = proxyUplink + directUplink
+        val down = proxyDownlink + directDownlink
+        sessionUp += up
+        sessionDown += down
+        getService()?.let { service ->
+            MessageHelper.sendMsg2UI(
+                service,
+                AppConfig.MSG_TRAFFIC_STATS,
+                TrafficSnapshot(
+                    upSpeed = (up / sinceLastQueryInSeconds).toLong(),
+                    downSpeed = (down / sinceLastQueryInSeconds).toLong(),
+                    sessionUp = sessionUp,
+                    sessionDown = sessionDown,
+                )
+            )
+        }
         val zeroSpeed = proxyTotal + directTotal == 0L
         if (!zeroSpeed || !lastZeroSpeed) {
             val text = StringBuilder()

@@ -2,6 +2,7 @@ package com.v2ray.ang.ui.main
 
 import com.v2ray.ang.dto.ConnectionTestResult
 import com.v2ray.ang.dto.RealPingResult
+import com.v2ray.ang.dto.TrafficSnapshot
 
 sealed class MainServiceEvent {
     data object StateRunning : MainServiceEvent()
@@ -15,4 +16,5 @@ sealed class MainServiceEvent {
     data class MeasureConfigNotify(val progress: String, val requestId: String) : MainServiceEvent()
     data class MeasureConfigFinish(val requestId: String) : MainServiceEvent()
     data class MeasureConfigCancelled(val requestId: String) : MainServiceEvent()
+    data class Traffic(val snapshot: TrafficSnapshot) : MainServiceEvent()
 }

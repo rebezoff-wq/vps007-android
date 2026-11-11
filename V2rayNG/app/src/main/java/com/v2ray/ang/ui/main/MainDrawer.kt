@@ -37,6 +37,10 @@ import com.v2ray.ang.ui.compose.verticalScrollbar
 
 enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRes: Int) {
     Account(R.drawable.ic_lock_24dp, R.string.title_account),
+    AllServers(R.drawable.ic_routing_24dp, R.string.home_all_servers),
+    Support(R.drawable.ic_feedback_24dp, R.string.home_action_support),
+    /** Opens the web cabinet to renew / buy (not listed in the drawer). */
+    Renew(R.drawable.ic_subscriptions_24dp, R.string.home_action_renew),
     Subscriptions(R.drawable.ic_subscriptions_24dp, R.string.title_sub_setting),
     PerAppProxy(R.drawable.ic_per_apps_24dp, R.string.per_app_proxy_settings),
     Routing(R.drawable.ic_routing_24dp, R.string.routing_settings_title),
@@ -51,6 +55,8 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
 
 private val primaryDrawerItems = listOf(
     MainDestination.Account,
+    MainDestination.Support,
+    MainDestination.AllServers,
     MainDestination.Subscriptions,
     MainDestination.PerAppProxy,
     MainDestination.Routing,

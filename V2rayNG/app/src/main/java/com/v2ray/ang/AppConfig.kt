@@ -221,6 +221,8 @@ object AppConfig {
     const val MSG_MEASURE_CONFIG_SUCCESS = 72
     const val MSG_MEASURE_CONFIG_NOTIFY = 73
     const val MSG_MEASURE_CONFIG_FINISH = 74
+    /** VPS 007: live traffic for the home screen (TrafficSnapshot). */
+    const val MSG_TRAFFIC_STATS = 91
 
     const val MSG_SUB_UPDATE_START = 8
     const val MSG_SUB_UPDATE_CANCEL = 81

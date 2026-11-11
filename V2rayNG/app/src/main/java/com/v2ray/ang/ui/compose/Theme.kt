@@ -101,11 +101,68 @@ private val DarkColor = darkColorScheme(
     surfaceContainerHighest = Color(0xFF333234), // Dark Gray
 )
 
+/**
+ * VPS 007 brand palette (same tokens as the web cabinet fi.club-007.com): dark navy only.
+ */
+object Vps007Colors {
+    val Bg = Color(0xFF0A0F1A)
+    val Surface = Color(0xFF0F172A)
+    val Surface2 = Color(0xFF172033)
+    val Line = Color(0xFF1E293B)
+    val Line2 = Color(0xFF334155)
+    val Text = Color(0xFFF1F5F9)
+    val Text2 = Color(0xFFCBD5E1)
+    val Muted = Color(0xFF94A3B8)
+    val Accent = Color(0xFF3B82F6)
+    val Accent2 = Color(0xFF60A5FA)
+    val AccentDeep = Color(0xFF1D4ED8)
+    val Ok = Color(0xFF22C55E)
+    val Gold = Color(0xFFDDBD70)
+    val Danger = Color(0xFFF87171)
+}
+
+private val Vps007Color = darkColorScheme(
+    primary = Vps007Colors.Accent,
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF1E3A8A),
+    onPrimaryContainer = Color(0xFFDBEAFE),
+    secondary = Vps007Colors.Gold,
+    onSecondary = Color(0xFF2B2105),
+    secondaryContainer = Color(0xFF3A3018),
+    onSecondaryContainer = Color(0xFFF3E4BC),
+    tertiary = Vps007Colors.Ok,
+    onTertiary = Color(0xFF052E16),
+    tertiaryContainer = Color(0xFF14532D),
+    onTertiaryContainer = Color(0xFFBBF7D0),
+    error = Vps007Colors.Danger,
+    errorContainer = Color(0xFF7F1D1D),
+    onError = Color(0xFF450A0A),
+    onErrorContainer = Color(0xFFFEE2E2),
+    background = Vps007Colors.Bg,
+    onBackground = Vps007Colors.Text,
+    surface = Vps007Colors.Bg,
+    onSurface = Vps007Colors.Text,
+    surfaceVariant = Vps007Colors.Surface2,
+    onSurfaceVariant = Vps007Colors.Muted,
+    outline = Vps007Colors.Line2,
+    outlineVariant = Vps007Colors.Line,
+    inverseSurface = Vps007Colors.Text,
+    inverseOnSurface = Vps007Colors.Bg,
+    inversePrimary = Vps007Colors.AccentDeep,
+    scrim = Color.Black,
+    surfaceTint = Vps007Colors.Accent,
+    surfaceContainerLowest = Color(0xFF070B14),
+    surfaceContainerLow = Vps007Colors.Surface,
+    surfaceContainer = Vps007Colors.Surface,
+    surfaceContainerHigh = Vps007Colors.Surface2,
+    surfaceContainerHighest = Color(0xFF1C2740),
+)
+
 // Semantic Colors
-val colorPing = Color(0xFF009966) // Green
+val colorPing = Color(0xFF22C55E) // Green
 val colorPingRed = Color(0xFFFF0099) // Pink Red
-val colorConfigType = Color(0xFFf97910) // Orange
-val colorFabActive = Color(0xFFf97910) // Orange
+val colorConfigType = Color(0xFF60A5FA) // Blue
+val colorFabActive = Color(0xFF3B82F6) // Blue
 val colorFabInactiveLight = Color(0xFF9C9C9C) // Gray
 val colorFabInactiveDark = Color(0xFF646464) // Dark Gray
 val dividerColorLight = Color(0xFFE0E0E0) // Light Gray
@@ -163,19 +220,12 @@ val LocalDarkTheme = compositionLocalOf { false }
 
 @Composable
 fun AppTheme(
-    darkTheme: Boolean = resolveDarkTheme(),
+    // VPS 007: one brand look (dark navy, like the web cabinet); light/dynamic themes are not used.
+    @Suppress("UNUSED_PARAMETER") darkTheme: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val dynamicColor by ThemeManager.dynamicColorEnabled.collectAsState()
-    val context = LocalContext.current
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColor
-        else -> LightColor
-    }
+    val darkTheme = true
+    val colorScheme = Vps007Color
     val snackbarController = rememberAppSnackbarController()
 
     val view = LocalView.current

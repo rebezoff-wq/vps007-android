@@ -26,7 +26,9 @@ data class MainUiState(
     val locateTarget: LocateTarget? = null,
     val confirmRemove: Boolean = false,
     val doubleColumnDisplay: Boolean = false,
-    val shareQRCodeBitmap: android.graphics.Bitmap? = null
+    val shareQRCodeBitmap: android.graphics.Bitmap? = null,
+    /** Live speed / session traffic while connected (null when disconnected). */
+    val traffic: com.v2ray.ang.dto.TrafficSnapshot? = null,
 )
 
 /**

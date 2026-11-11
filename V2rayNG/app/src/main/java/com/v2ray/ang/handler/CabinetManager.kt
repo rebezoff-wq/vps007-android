@@ -9,6 +9,9 @@ import com.v2ray.ang.dto.CabinetError
 import com.v2ray.ang.dto.CabinetResult
 import com.v2ray.ang.dto.CabinetSubscriptionStatus
 import com.v2ray.ang.dto.CabinetSyncResult
+import com.v2ray.ang.dto.CabinetTicket
+import com.v2ray.ang.dto.CabinetTicketDetail
+import com.v2ray.ang.dto.CabinetTicketList
 import com.v2ray.ang.dto.CabinetTokens
 import com.v2ray.ang.dto.entities.SubscriptionCache
 import com.v2ray.ang.dto.entities.SubscriptionItem
@@ -182,8 +185,64 @@ object CabinetManager {
         }
         MmkvManager.encodeSubscription(subId, item)
         MmkvManager.encodeCabinetString(KEY_SUB_ID, subId)
+        removeEmptyDefaultGroup()
         SubscriptionUpdater.syncOne(subId = subId)
         return subId
+    }
+
+    /** The placeholder «Default» group (no URL, no servers) only confuses users once the account group exists. */
+    private fun removeEmptyDefaultGroup() {
+        val defaultId = AppConfig.DEFAULT_SUBSCRIPTION_ID
+        val sub = MmkvManager.decodeSubscription(defaultId) ?: return
+        if (sub.url.isBlank() && MmkvManager.decodeServerList(defaultId).isEmpty()) {
+            MmkvManager.removeSubscription(defaultId)
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Support tickets
+    // ---------------------------------------------------------------------
+
+    suspend fun listTickets(): CabinetResult<List<CabinetTicket>> = withContext(Dispatchers.IO) {
+        val r = authorized("/tickets?page=1&per_page=50", null)
+            ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        if (r.code != 200) return@withContext CabinetResult.Failure(mapTicketError(r.code, r.body))
+        val list = r.body?.let { JsonUtil.fromJsonSafe(it, CabinetTicketList::class.java) }
+            ?: return@withContext CabinetResult.Failure(CabinetError.SERVER)
+        CabinetResult.Success(list.items)
+    }
+
+    suspend fun getTicket(id: Long): CabinetResult<CabinetTicketDetail> = withContext(Dispatchers.IO) {
+        val r = authorized("/tickets/$id", null) ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        parseTicketDetail(r)
+    }
+
+    suspend fun createTicket(title: String, message: String): CabinetResult<CabinetTicketDetail> =
+        withContext(Dispatchers.IO) {
+            val body = JsonUtil.toJson(mapOf("title" to title.trim(), "message" to message.trim()))
+            val r = authorized("/tickets", body) ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+            parseTicketDetail(r)
+        }
+
+    suspend fun replyTicket(id: Long, message: String): CabinetResult<Unit> = withContext(Dispatchers.IO) {
+        val body = JsonUtil.toJson(mapOf("message" to message.trim()))
+        val r = authorized("/tickets/$id/messages", body) ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        if (r.code == 200) CabinetResult.Success(Unit) else CabinetResult.Failure(mapTicketError(r.code, r.body))
+    }
+
+    private fun parseTicketDetail(r: HttpResult): CabinetResult<CabinetTicketDetail> {
+        if (r.code != 200) return CabinetResult.Failure(mapTicketError(r.code, r.body))
+        val detail = r.body?.let { JsonUtil.fromJsonSafe(it, CabinetTicketDetail::class.java) }
+            ?: return CabinetResult.Failure(CabinetError.SERVER)
+        return CabinetResult.Success(detail)
+    }
+
+    private fun mapTicketError(code: Int, body: String?): CabinetError = when (code) {
+        401 -> CabinetError.NOT_LOGGED_IN
+        409 -> CabinetError.TICKET_ALREADY_OPEN
+        400 -> if (body?.contains("closed", ignoreCase = true) == true) CabinetError.TICKET_CLOSED else CabinetError.SERVER
+        403 -> CabinetError.TICKETS_UNAVAILABLE
+        else -> mapError(code, body)
     }
 
     // ---------------------------------------------------------------------
@@ -223,12 +282,18 @@ object CabinetManager {
     }
 
     /** GET with the access token; on 401 refreshes the token once and retries. */
-    private suspend fun authorizedGet(path: String): HttpResult? {
+    private suspend fun authorizedGet(path: String): HttpResult? = authorized(path, null)
+
+    /** GET (jsonBody == null) or POST with the access token; on 401 refreshes once and retries. */
+    private suspend fun authorized(path: String, jsonBody: String?): HttpResult? {
         val access = readSecret(KEY_ACCESS) ?: return HttpResult(401, null)
-        val first = get(path, access) ?: return null
+        val send: (String?) -> HttpResult? = { token ->
+            if (jsonBody == null) get(path, token) else post(path, jsonBody, token)
+        }
+        val first = send(access) ?: return null
         if (first.code != 401) return first
         if (!refreshTokens(access)) return HttpResult(401, null)
-        return get(path, readSecret(KEY_ACCESS))
+        return send(readSecret(KEY_ACCESS))
     }
 
     private suspend fun refreshTokens(staleAccess: String): Boolean = refreshMutex.withLock {

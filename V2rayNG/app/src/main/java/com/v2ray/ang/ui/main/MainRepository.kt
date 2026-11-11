@@ -12,6 +12,7 @@ import com.v2ray.ang.dto.ConnectionTestResult
 import com.v2ray.ang.dto.RealPingResult
 import com.v2ray.ang.dto.SubscriptionUpdateResult
 import com.v2ray.ang.dto.TestServiceMessage
+import com.v2ray.ang.dto.TrafficSnapshot
 import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.dto.entities.ServerAffiliationInfo
 import com.v2ray.ang.dto.entities.SubscriptionCache
@@ -73,6 +74,9 @@ class MainRepository(
                     requestId
                 )
                 AppConfig.MSG_MEASURE_CONFIG_CANCEL -> MainServiceEvent.MeasureConfigCancelled(requestId)
+                AppConfig.MSG_TRAFFIC_STATS -> safeIntent
+                    .serializable<TrafficSnapshot>("content")
+                    ?.let { MainServiceEvent.Traffic(it) }
 
                 else -> null
             }

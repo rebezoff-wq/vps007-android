@@ -178,6 +178,10 @@ class MainViewModel(
                 //if (testRequests.completeCurrent(event.requestId)) resetTestStatus()
             }
 
+            is MainServiceEvent.Traffic -> {
+                if (uiState.value.isRunning) _uiState.update { it.copy(traffic = event.snapshot) }
+            }
+
             is MainServiceEvent.MeasureConfigCancelled -> {
                 if (testRequests.completeBulk(event.requestId) != null) {
                     cancelPendingTestResults()
@@ -952,6 +956,7 @@ class MainViewModel(
             state.copy(
                 isRunning = running,
                 isTesting = testRequests.isTesting,
+                traffic = if (running) state.traffic else null,
                 status = if (!clearTestingText && state.isRunning == running) state.status
                 else if (running) MainStatus.Connected else MainStatus.Disconnected
             )

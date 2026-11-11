@@ -1,5 +1,8 @@
 package com.v2ray.ang.ui.perappproxy
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -199,61 +202,32 @@ fun PerAppProxyScreen(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surface
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.per_app_proxy_settings_enable),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Switch(
-                            checked = perAppProxyEnabled,
-                            modifier = Modifier.scale(0.65f),
-                            onCheckedChange = onPerAppProxyChanged,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.onSecondary,
-                                checkedTrackColor = MaterialTheme.colorScheme.secondary
-                            )
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.switch_bypass_apps_mode),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Switch(
-                            checked = bypassApps,
-                            modifier = Modifier.scale(0.65f),
-                            onCheckedChange = onBypassAppsChanged,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.onSecondary,
-                                checkedTrackColor = MaterialTheme.colorScheme.secondary
-                            )
-                        )
-                    }
-                    IconButton(onClick = onInfoClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_about_24dp),
-                            contentDescription = stringResource(R.string.acc_per_app_proxy_information),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                // VPS 007: two full-width rows so the switches never overlap their labels.
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    PerAppSwitchRow(
+                        title = stringResource(R.string.per_app_proxy_settings_enable),
+                        subtitle = stringResource(R.string.vps_per_app_enable_hint),
+                        checked = perAppProxyEnabled,
+                        onCheckedChange = onPerAppProxyChanged,
+                        trailing = {
+                            IconButton(onClick = onInfoClick) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_about_24dp),
+                                    contentDescription = stringResource(R.string.acc_per_app_proxy_information),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    )
+                    PerAppSwitchRow(
+                        title = stringResource(R.string.switch_bypass_apps_mode),
+                        subtitle = stringResource(
+                            if (bypassApps) R.string.vps_per_app_bypass_on else R.string.vps_per_app_bypass_off
+                        ),
+                        checked = bypassApps,
+                        enabled = perAppProxyEnabled,
+                        onCheckedChange = onBypassAppsChanged,
+                    )
                 }
             }
             AppDivider()
@@ -287,5 +261,54 @@ fun PerAppProxyScreen(
             onConfirm = {},
             onDismiss = { showInfoDialog = false },
         )
+    }
+}
+
+
+@Composable
+private fun PerAppSwitchRow(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    trailing: @Composable () -> Unit = {},
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Switch,
+                onValueChange = onCheckedChange,
+            )
+            .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        // Row handles the toggle (one semantic node); the switch is visual only.
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            enabled = enabled,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
+            )
+        )
+        trailing()
     }
 }

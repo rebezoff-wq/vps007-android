@@ -9,6 +9,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
@@ -30,6 +31,7 @@ import com.v2ray.ang.handler.SubscriptionInfoParser
 import com.v2ray.ang.handler.UpdateCheckerManager
 import com.v2ray.ang.ui.AboutActivity
 import com.v2ray.ang.ui.account.AccountActivity
+import com.v2ray.ang.ui.support.SupportActivity
 import com.v2ray.ang.ui.backup.BackupActivity
 import com.v2ray.ang.ui.base.HelperBaseComponentActivity
 import com.v2ray.ang.ui.checkupdate.CheckUpdateActivity
@@ -114,19 +116,13 @@ class MainActivity : HelperBaseComponentActivity() {
     }
 
     /**
-     * VPS 007: open the login screen when there is nothing to connect to yet, otherwise refresh
-     * the account subscription in the background; then check for an app update (at most daily).
+     * VPS 007: refresh the account subscription in the background, then check for an app update
+     * (at most daily).
      */
     private fun onFirstLaunchOfSession() {
         lifecycleScope.launch {
-            val needsLogin = withContext(Dispatchers.IO) {
-                !CabinetManager.isLoggedIn() && MmkvManager.decodeAllServerList().isEmpty()
-            }
-            if (needsLogin) {
-                accountLauncher.launch(AccountActivity.intent(this@MainActivity))
-            } else {
-                mainViewModel.onAction(MainAction.SyncAccount)
-            }
+            // Not signed in: the home screen shows the welcome card (trial / sign in) instead.
+            mainViewModel.onAction(MainAction.SyncAccount)
 
             if (BuildConfig.SELF_UPDATE && UpdateCheckerManager.shouldAutoCheck()) {
                 val hasUpdate = try {
@@ -143,31 +139,45 @@ class MainActivity : HelperBaseComponentActivity() {
         }
     }
 
+    /** VPS 007: the classic v2rayNG server list, opened from the drawer («Все серверы»). */
+    private val showAllServers = mutableStateOf(false)
+
     @Composable
     override fun ScreenContent() {
-        BackHandler { moveTaskToBack(false) }
+        if (!showAllServers.value) {
+            BackHandler { moveTaskToBack(false) }
+            MainHomeScreen(
+                mainViewModel = mainViewModel,
+                onAction = ::handleMainAction,
+                onNavigate = { route -> navigateTo(route) },
+            )
+            return
+        }
+        BackHandler { showAllServers.value = false }
         MainScreen(
             mainViewModel = mainViewModel,
-            onAction = { action ->
-                when (action) {
-                    MainAction.ToggleService -> handleFabAction()
-                    MainAction.TestCurrentServer -> handleLayoutTestClick()
-                    MainAction.ImportQRcode -> importQRcode()
-                    MainAction.ImportClipboard -> importClipboard()
-                    MainAction.ImportConfigLocal -> importConfigLocal()
-                    is MainAction.ImportManually -> importManually(action.type)
-                    MainAction.RestartService -> LauncherManager.restartServiceOrStart(this, ::requestServiceStart)
-                    MainAction.LocateSelectedServer -> mainViewModel.triggerLocateSelectedServer()
-                    is MainAction.SelectServer -> setSelectServer(action.guid)
-                    is MainAction.EditServer -> editServer(action.guid, action.profile)
-                    is MainAction.ShareClipboard -> shareToClipboard(action.guid)
-                    is MainAction.ShareFullContent -> shareFullContentAsync(action.guid)
-                    is MainAction.OpenSubscriptionLink -> openSubscriptionLink(action.url)
-                    else -> mainViewModel.onAction(action)
-                }
-            },
+            onAction = ::handleMainAction,
             onNavigate = { route -> navigateTo(route) },
         )
+    }
+
+    private fun handleMainAction(action: MainAction) {
+        when (action) {
+            MainAction.ToggleService -> handleFabAction()
+            MainAction.TestCurrentServer -> handleLayoutTestClick()
+            MainAction.ImportQRcode -> importQRcode()
+            MainAction.ImportClipboard -> importClipboard()
+            MainAction.ImportConfigLocal -> importConfigLocal()
+            is MainAction.ImportManually -> importManually(action.type)
+            MainAction.RestartService -> LauncherManager.restartServiceOrStart(this, ::requestServiceStart)
+            MainAction.LocateSelectedServer -> mainViewModel.triggerLocateSelectedServer()
+            is MainAction.SelectServer -> setSelectServer(action.guid)
+            is MainAction.EditServer -> editServer(action.guid, action.profile)
+            is MainAction.ShareClipboard -> shareToClipboard(action.guid)
+            is MainAction.ShareFullContent -> shareFullContentAsync(action.guid)
+            is MainAction.OpenSubscriptionLink -> openSubscriptionLink(action.url)
+            else -> mainViewModel.onAction(action)
+        }
     }
 
     private fun shareToClipboard(guid: String): Boolean =
@@ -193,6 +203,15 @@ class MainActivity : HelperBaseComponentActivity() {
         val intent = when (destination) {
             MainDestination.Account -> {
                 accountLauncher.launch(AccountActivity.intent(this))
+                return
+            }
+            MainDestination.AllServers -> {
+                showAllServers.value = true
+                return
+            }
+            MainDestination.Support -> SupportActivity.intent(this)
+            MainDestination.Renew -> {
+                Utils.openUri(this, AppConfig.CABINET_WEB_URL)
                 return
             }
             MainDestination.Subscriptions -> Intent(this, SubSettingActivity::class.java)

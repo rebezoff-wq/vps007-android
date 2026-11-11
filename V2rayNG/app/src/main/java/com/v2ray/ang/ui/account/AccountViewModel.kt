@@ -180,6 +180,10 @@ class AccountViewModel : ViewModel() {
             CabinetError.TOO_MANY_REQUESTS -> R.string.account_error_too_many
             CabinetError.NETWORK -> R.string.account_error_network
             CabinetError.SERVER -> R.string.account_error_server
+            CabinetError.TICKET_ALREADY_OPEN -> R.string.support_error_already_open
+            CabinetError.TICKET_CLOSED -> R.string.support_error_closed
+            CabinetError.TICKETS_UNAVAILABLE -> R.string.support_error_unavailable
+            CabinetError.NOT_LOGGED_IN -> R.string.support_error_login
         }
     }
 }

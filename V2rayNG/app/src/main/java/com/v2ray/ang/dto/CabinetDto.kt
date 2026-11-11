@@ -57,6 +57,18 @@ enum class CabinetError {
     TOO_MANY_REQUESTS,
     NETWORK,
     SERVER,
+
+    /** Support: the user already has an unclosed ticket (one at a time). */
+    TICKET_ALREADY_OPEN,
+
+    /** Support: the ticket is closed, replies are not accepted. */
+    TICKET_CLOSED,
+
+    /** Support: tickets are switched off on the server, or the user is blocked from support. */
+    TICKETS_UNAVAILABLE,
+
+    /** No saved login: the user must sign in first. */
+    NOT_LOGGED_IN,
 }
 
 /** Result of loading the account subscription into the server list. */
@@ -65,4 +77,38 @@ data class CabinetSyncResult(
     val isActive: Boolean,
     val endDate: String?,
     val configCount: Int,
+)
+
+// ---------------------------------------------------------------------------
+// Support tickets (`/api/cabinet/tickets`)
+// ---------------------------------------------------------------------------
+
+data class CabinetTicketMessage(
+    @SerializedName("id") val id: Long = 0,
+    @SerializedName("message_text") val text: String = "",
+    @SerializedName("is_from_admin") val isFromAdmin: Boolean = false,
+    @SerializedName("has_media") val hasMedia: Boolean = false,
+    @SerializedName("created_at") val createdAt: String? = null,
+)
+
+data class CabinetTicket(
+    @SerializedName("id") val id: Long = 0,
+    @SerializedName("title") val title: String = "",
+    /** open | answered | pending | closed */
+    @SerializedName("status") val status: String = "",
+    @SerializedName("updated_at") val updatedAt: String? = null,
+    @SerializedName("messages_count") val messagesCount: Int = 0,
+    @SerializedName("last_message") val lastMessage: CabinetTicketMessage? = null,
+)
+
+data class CabinetTicketList(
+    @SerializedName("items") val items: List<CabinetTicket> = emptyList(),
+)
+
+data class CabinetTicketDetail(
+    @SerializedName("id") val id: Long = 0,
+    @SerializedName("title") val title: String = "",
+    @SerializedName("status") val status: String = "",
+    @SerializedName("is_reply_blocked") val isReplyBlocked: Boolean = false,
+    @SerializedName("messages") val messages: List<CabinetTicketMessage> = emptyList(),
 )
