@@ -13,8 +13,9 @@ android {
         applicationId = "com.club007.vpn"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0.0"
+        // CI passes -PVERSION_NAME / -PVERSION_CODE for releases (tag v1.2.3 -> 1.2.3).
+        versionCode = (project.findProperty("VERSION_CODE") as String?)?.toInt() ?: 1
+        versionName = (project.findProperty("VERSION_NAME") as String?) ?: "1.0.0"
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -36,6 +37,9 @@ android {
         }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // In-app update check against GitHub Releases. Build Google Play bundles with -PSELF_UPDATE=false.
+        buildConfigField("boolean", "SELF_UPDATE", (project.findProperty("SELF_UPDATE") ?: "true").toString())
     }
 
     buildTypes {
@@ -121,6 +125,11 @@ android {
                     }
                 }
         }
+    }
+
+    lint {
+        // VPS 007 strings are translated to English (default) and Russian only.
+        disable += "MissingTranslation"
     }
 
     buildFeatures {

@@ -14,6 +14,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object UpdateCheckerManager {
+    private const val PREF_LAST_AUTO_CHECK = "pref_vps007_last_update_check"
+
+    /** Startup update check runs at most once per [AppConfig.APP_UPDATE_CHECK_INTERVAL_MS]. */
+    fun shouldAutoCheck(now: Long = System.currentTimeMillis()): Boolean =
+        now - MmkvManager.decodeSettingsLong(PREF_LAST_AUTO_CHECK, 0L) >= AppConfig.APP_UPDATE_CHECK_INTERVAL_MS
+
+    fun markAutoChecked(now: Long = System.currentTimeMillis()) {
+        MmkvManager.encodeSettings(PREF_LAST_AUTO_CHECK, now)
+    }
+
     suspend fun checkForUpdate(includePreRelease: Boolean = false): CheckUpdateResult = withContext(Dispatchers.IO) {
         val url = if (includePreRelease) {
             AppConfig.APP_API_URL

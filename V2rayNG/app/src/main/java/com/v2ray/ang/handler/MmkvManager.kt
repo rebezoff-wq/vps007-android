@@ -45,6 +45,7 @@ object MmkvManager {
     private const val ID_SUB = "SUB"
     private const val ID_ASSET = "ASSET"
     private const val ID_SETTING = "SETTING"
+    private const val ID_CABINET = "CABINET"
     private const val KEY_SELECTED_SERVER = "SELECTED_SERVER"
     private const val KEY_ANG_CONFIGS = "ANG_CONFIGS"
     private const val KEY_SUB_SERVER_PREFIX = "SUB_SERVERS_"
@@ -76,6 +77,7 @@ object MmkvManager {
     private val subStorage by lazy { MMKV.mmkvWithID(ID_SUB, MMKV.MULTI_PROCESS_MODE) }
     private val assetStorage by lazy { MMKV.mmkvWithID(ID_ASSET, MMKV.MULTI_PROCESS_MODE) }
     private val settingsStorage by lazy { MMKV.mmkvWithID(ID_SETTING, MMKV.MULTI_PROCESS_MODE) }
+    private val cabinetStorage by lazy { MMKV.mmkvWithID(ID_CABINET, MMKV.MULTI_PROCESS_MODE) }
 
     private inline fun <T> withProfileIndexLock(block: () -> T): T {
         return synchronized(mainStorage) {
@@ -724,6 +726,30 @@ object MmkvManager {
             // Keep the first occurrence so a damaged index cannot produce duplicate Compose keys.
             JsonUtil.fromJsonSafe(json, Array<String>::class.java)?.distinct()?.toMutableList() ?: mutableListOf()
         }
+    }
+
+    //endregion
+
+    //region Cabinet account
+
+    /**
+     * Stores a VPS 007 account value. Secrets must be encrypted by the caller (CabinetManager)
+     * because MMKV backups copy every store. A null value removes the key.
+     */
+    fun encodeCabinetString(key: String, value: String?): Boolean {
+        return if (value == null) {
+            cabinetStorage.removeValueForKey(key)
+            true
+        } else {
+            cabinetStorage.encode(key, value)
+        }
+    }
+
+    fun decodeCabinetString(key: String): String? = cabinetStorage.decodeString(key)
+
+    /** Removes all VPS 007 account data (tokens, linked subscription id). */
+    fun clearCabinet() {
+        cabinetStorage.clearAll()
     }
 
     //endregion

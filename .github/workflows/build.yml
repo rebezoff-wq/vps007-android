@@ -4,6 +4,8 @@ name: Build VPS 007 APK
 # Without signing secrets it builds a debug APK (installable for testing).
 # With secrets APP_KEYSTORE_BASE64 / APP_KEYSTORE_PASSWORD / APP_KEYSTORE_ALIAS / APP_KEY_PASSWORD
 # it also builds signed release APKs and an AAB for Google Play.
+# Pushing a tag like v1.0.1 publishes a GitHub Release with the signed APKs;
+# installed apps find it via «Check for updates» (version = tag without the leading v).
 
 on:
   workflow_dispatch:
@@ -11,9 +13,11 @@ on:
     branches:
       - main
       - master
+    tags:
+      - 'v*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -80,6 +84,14 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
+    - name: Version from tag
+      run: |
+        ARGS="-PVERSION_CODE=${{ github.run_number }}"
+        if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+          ARGS="$ARGS -PVERSION_NAME=${GITHUB_REF_NAME#v}"
+        fi
+        echo "VERSION_ARGS=$ARGS" >> $GITHUB_ENV
+
     - name: Check signing secrets
       id: signing
       env:
@@ -99,7 +111,7 @@ jobs:
         cd V2rayNG
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
-        ./gradlew assemblePlaystoreDebug
+        ./gradlew assemblePlaystoreDebug $VERSION_ARGS
 
     - name: Build signed release APK + AAB
       if: steps.signing.outputs.enabled == 'true'
@@ -111,7 +123,9 @@ jobs:
           -Pandroid.injected.signing.store.password=${{ secrets.APP_KEYSTORE_PASSWORD }} \
           -Pandroid.injected.signing.key.alias=${{ secrets.APP_KEYSTORE_ALIAS }} \
           -Pandroid.injected.signing.key.password=${{ secrets.APP_KEY_PASSWORD }}"
-        ./gradlew assemblePlaystoreRelease bundlePlaystoreRelease $SIGN
+        ./gradlew assemblePlaystoreRelease $VERSION_ARGS $SIGN
+        # Google Play build: no self-update from GitHub (Play policy).
+        ./gradlew bundlePlaystoreRelease $VERSION_ARGS -PSELF_UPDATE=false $SIGN
 
     - name: Upload APKs
       uses: actions/upload-artifact@v4
@@ -125,3 +139,12 @@ jobs:
       with:
         name: VPS007-aab
         path: V2rayNG/app/build/outputs/bundle/playstoreRelease/*.aab
+
+    - name: Publish GitHub Release (tags only)
+      if: github.ref_type == 'tag' && steps.signing.outputs.enabled == 'true'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release create "${GITHUB_REF_NAME}" \
+          V2rayNG/app/build/outputs/apk/playstore/release/*.apk \
+          --repo "${GITHUB_REPOSITORY}" --title "VPS 007 ${GITHUB_REF_NAME}" --generate-notes

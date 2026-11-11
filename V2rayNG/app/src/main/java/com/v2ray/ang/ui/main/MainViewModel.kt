@@ -18,6 +18,8 @@ import com.v2ray.ang.extension.delay
 import com.v2ray.ang.extension.isComplexType
 import com.v2ray.ang.extension.matchesPattern
 import com.v2ray.ang.extension.moveItem
+import com.v2ray.ang.dto.CabinetResult
+import com.v2ray.ang.handler.CabinetManager
 import com.v2ray.ang.handler.SubscriptionInfoParser
 import com.v2ray.ang.ui.base.BaseViewModel
 import com.v2ray.ang.util.LogUtil
@@ -285,6 +287,7 @@ class MainViewModel(
             MainAction.RemoveInvalidServers -> removeInvalidServerAsync()
             MainAction.SortByTestResults -> sortByTestResultsAsync()
             MainAction.UpdateSubscriptions -> importConfigViaSub(uiState.value.selectedGroupId)
+            MainAction.SyncAccount -> syncAccount()
             is MainAction.UpdateGroupSubscription -> importConfigViaSub(action.groupId)
             MainAction.ExportAll -> exportAllAsync()
             is MainAction.SelectGroup -> subscriptionIdChanged(action.groupId)
@@ -537,6 +540,21 @@ class MainViewModel(
                     LogUtil.e(AppConfig.TAG, "Failed to import batch config", e)
                     toastError(R.string.toast_failure)
                 }
+            }
+        }
+    }
+
+    /**
+     * Refreshes the account subscription URL and servers in the background (startup / after login).
+     * Failures are silent here; the Account screen shows them when the user opens it.
+     */
+    private fun syncAccount() {
+        if (!CabinetManager.isLoggedIn()) return
+        viewModelScope.launch(ioDispatcher) {
+            val result = CabinetManager.syncSubscription()
+            if (result is CabinetResult.Success) {
+                setupGroupTab(forceRefresh = true)
+                refreshSelectedGuid()
             }
         }
     }

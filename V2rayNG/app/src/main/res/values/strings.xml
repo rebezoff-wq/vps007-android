@@ -576,4 +576,36 @@
     <string name="sub_info_traffic" translatable="false">%1$s / %2$s</string>
     <string name="sub_info_unlimited">Unlimited</string>
 
+
+    <!-- VPS 007 account -->
+    <string name="title_account">Account</string>
+    <string name="account_title">Account</string>
+    <string name="account_login_title">Sign in to VPS 007</string>
+    <string name="account_login_subtitle">Sign in and the app will load your subscription and servers automatically.</string>
+    <string name="account_login_telegram">Sign in with Telegram</string>
+    <string name="account_telegram_waiting">Confirm the sign-in in the Telegram bot: tap «Yes, sign in». Then come back to the app.</string>
+    <string name="account_telegram_open_again">Open Telegram again</string>
+    <string name="account_or_email">or with email</string>
+    <string name="account_email">Email</string>
+    <string name="account_password">Password</string>
+    <string name="account_login_email">Sign in with email</string>
+    <string name="account_no_account">No account? Get a free trial in the bot</string>
+    <string name="account_logged_in">You are signed in</string>
+    <string name="account_subscription">Subscription</string>
+    <string name="account_subscription_loading">Loading…</string>
+    <string name="account_subscription_unknown">Tap «Refresh subscription» to load the status.</string>
+    <string name="account_subscription_none">No active subscription. You can buy one or get a trial in the bot.</string>
+    <string name="account_subscription_active_until">Active until %1$s</string>
+    <string name="account_subscription_expired">Expired on %1$s. Renew it in the bot.</string>
+    <string name="account_refresh">Refresh subscription</string>
+    <string name="account_renew_in_bot">Renew in the bot</string>
+    <string name="account_logout">Sign out</string>
+    <string name="account_error_fill_fields">Enter email and password.</string>
+    <string name="account_error_invalid_credentials">Wrong email or password, or the session has expired. Sign in again.</string>
+    <string name="account_error_email_not_verified">Confirm your email first: open the link from the email we sent you.</string>
+    <string name="account_error_disabled">This account is disabled. Contact support.</string>
+    <string name="account_error_link_expired">The sign-in link has expired. Tap «Sign in with Telegram» again.</string>
+    <string name="account_error_too_many">Too many attempts. Wait a minute and try again.</string>
+    <string name="account_error_network">No connection to the server. Check the internet and try again.</string>
+    <string name="account_error_server">Server error. Try again later.</string>
 </resources>

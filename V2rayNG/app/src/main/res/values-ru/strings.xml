@@ -579,4 +579,36 @@
     <string name="sub_info_open_page">Открыть страницу подписки</string>
     <string name="sub_info_unlimited">Без ограничений</string>
 
+
+    <!-- VPS 007 account -->
+    <string name="title_account">Аккаунт</string>
+    <string name="account_title">Аккаунт</string>
+    <string name="account_login_title">Вход в VPS 007</string>
+    <string name="account_login_subtitle">Войдите, и приложение само загрузит вашу подписку и серверы.</string>
+    <string name="account_login_telegram">Войти через Telegram</string>
+    <string name="account_telegram_waiting">Подтвердите вход в боте Telegram: нажмите «Да, войти». Потом вернитесь в приложение.</string>
+    <string name="account_telegram_open_again">Открыть Telegram ещё раз</string>
+    <string name="account_or_email">или по почте</string>
+    <string name="account_email">Email</string>
+    <string name="account_password">Пароль</string>
+    <string name="account_login_email">Войти по email</string>
+    <string name="account_no_account">Нет аккаунта? Получите пробный период в боте</string>
+    <string name="account_logged_in">Вы вошли</string>
+    <string name="account_subscription">Подписка</string>
+    <string name="account_subscription_loading">Загрузка…</string>
+    <string name="account_subscription_unknown">Нажмите «Обновить подписку», чтобы загрузить статус.</string>
+    <string name="account_subscription_none">Активной подписки нет. Оформите её или получите пробный период в боте.</string>
+    <string name="account_subscription_active_until">Активна до %1$s</string>
+    <string name="account_subscription_expired">Закончилась %1$s. Продлите её в боте.</string>
+    <string name="account_refresh">Обновить подписку</string>
+    <string name="account_renew_in_bot">Продлить в боте</string>
+    <string name="account_logout">Выйти из аккаунта</string>
+    <string name="account_error_fill_fields">Введите email и пароль.</string>
+    <string name="account_error_invalid_credentials">Неверный email или пароль, либо сессия истекла. Войдите заново.</string>
+    <string name="account_error_email_not_verified">Сначала подтвердите email: перейдите по ссылке из письма.</string>
+    <string name="account_error_disabled">Аккаунт заблокирован. Напишите в поддержку.</string>
+    <string name="account_error_link_expired">Ссылка для входа устарела. Нажмите «Войти через Telegram» ещё раз.</string>
+    <string name="account_error_too_many">Слишком много попыток. Подождите минуту и попробуйте снова.</string>
+    <string name="account_error_network">Нет связи с сервером. Проверьте интернет и попробуйте снова.</string>
+    <string name="account_error_server">Ошибка сервера. Попробуйте позже.</string>
 </resources>

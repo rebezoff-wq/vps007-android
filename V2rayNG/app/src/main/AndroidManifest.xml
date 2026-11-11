@@ -215,6 +215,10 @@
             android:name=".ui.AboutActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.account.AccountActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".ui.TranslatorsActivity"
             android:exported="false" />
 

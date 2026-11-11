@@ -45,6 +45,9 @@ sealed interface MainAction {
     data object RemoveInvalidServers : MainAction
     data object SortByTestResults : MainAction
     data object UpdateSubscriptions : MainAction
+
+    /** Reload the VPS 007 account subscription from the cabinet (no-op when logged out). */
+    data object SyncAccount : MainAction
     data class UpdateGroupSubscription(val groupId: String) : MainAction
     data object ExportAll : MainAction
 

@@ -131,12 +131,25 @@ object AppConfig {
     const val APP_URL = "$GITHUB_URL/rebezoff-wq/vps007-android"
     /** Upstream project this app is based on (credited on the About screen). */
     const val UPSTREAM_URL = "$GITHUB_URL/2dust/v2rayNG"
-    const val APP_API_URL = "https://api.github.com/repos/2dust/v2rayNG/releases"
+    const val APP_API_URL = "https://api.github.com/repos/rebezoff-wq/vps007-android/releases"
     const val APP_ISSUES_URL = "https://t.me/biggob"
     const val APP_WIKI_MODE = "$UPSTREAM_URL/wiki/Mode"
     const val APP_PRIVACY_POLICY = "https://club-007.com/privacy.html"
     const val APP_PROMOTION_URL = "aHR0cHM6Ly85LjIzNDQ1Ni54eXovYWJjLmh0bWw="
     const val TG_CHANNEL_URL = "https://t.me/club_007_bot"
+
+    /** Bedolaga cabinet API (fi.club-007.com) used for in-app login and subscription sync. */
+    const val CABINET_API_URL = "https://fi.club-007.com/api/cabinet"
+    const val CABINET_BOT_URL = "https://t.me/club_007_bot"
+
+    /** Remarks of the subscription the app manages for the logged-in account. */
+    const val CABINET_SUB_REMARKS = "VPS 007"
+
+    /** Background refresh interval for the account subscription, in minutes. */
+    const val CABINET_SUB_UPDATE_INTERVAL_MINUTES = 360L
+
+    /** Minimum time between automatic app update checks on startup. */
+    const val APP_UPDATE_CHECK_INTERVAL_MS = 24L * 60 * 60 * 1000
 
     /** Deep link scheme accepted by UrlSchemeActivity, e.g. vps007://install-sub?url=<encoded subscription URL>. */
     const val URL_SCHEME = "vps007"

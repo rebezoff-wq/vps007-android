@@ -29,12 +29,14 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.ui.compose.AppDivider
 import com.v2ray.ang.ui.compose.LocalDarkTheme
 import com.v2ray.ang.ui.compose.verticalScrollbar
 
 enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRes: Int) {
+    Account(R.drawable.ic_lock_24dp, R.string.title_account),
     Subscriptions(R.drawable.ic_subscriptions_24dp, R.string.title_sub_setting),
     PerAppProxy(R.drawable.ic_per_apps_24dp, R.string.per_app_proxy_settings),
     Routing(R.drawable.ic_routing_24dp, R.string.routing_settings_title),
@@ -48,6 +50,7 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
 }
 
 private val primaryDrawerItems = listOf(
+    MainDestination.Account,
     MainDestination.Subscriptions,
     MainDestination.PerAppProxy,
     MainDestination.Routing,
@@ -55,8 +58,10 @@ private val primaryDrawerItems = listOf(
     MainDestination.Settings
 )
 
-private val drawerItems = primaryDrawerItems + listOf(
+private val drawerItems = primaryDrawerItems + listOfNotNull(
     MainDestination.Logcat,
+    // Updates from GitHub Releases are only offered outside Google Play.
+    MainDestination.CheckUpdate.takeIf { BuildConfig.SELF_UPDATE },
     MainDestination.BackupRestore,
     MainDestination.About
 )

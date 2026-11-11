@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
+import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.LauncherManager
 import com.v2ray.ang.dto.entities.ProfileItem
@@ -21,11 +22,14 @@ import com.v2ray.ang.extension.toast
 import com.v2ray.ang.extension.toastError
 import com.v2ray.ang.extension.toastSuccess
 import com.v2ray.ang.handler.AngConfigManager
+import com.v2ray.ang.handler.CabinetManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SubscriptionInfoParser
+import com.v2ray.ang.handler.UpdateCheckerManager
 import com.v2ray.ang.ui.AboutActivity
+import com.v2ray.ang.ui.account.AccountActivity
 import com.v2ray.ang.ui.backup.BackupActivity
 import com.v2ray.ang.ui.base.HelperBaseComponentActivity
 import com.v2ray.ang.ui.checkupdate.CheckUpdateActivity
@@ -92,11 +96,51 @@ class MainActivity : HelperBaseComponentActivity() {
             if (restartService) LauncherManager.restartService(this)
         }
 
+    private val accountLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            // Login or logout may have added/removed the account subscription.
+            mainViewModel.onAction(MainAction.RefreshGroups)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainViewModel.onAction(MainAction.Initialize)
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
+
+        if (savedInstanceState == null) {
+            onFirstLaunchOfSession()
+        }
+    }
+
+    /**
+     * VPS 007: open the login screen when there is nothing to connect to yet, otherwise refresh
+     * the account subscription in the background; then check for an app update (at most daily).
+     */
+    private fun onFirstLaunchOfSession() {
+        lifecycleScope.launch {
+            val needsLogin = withContext(Dispatchers.IO) {
+                !CabinetManager.isLoggedIn() && MmkvManager.decodeAllServerList().isEmpty()
+            }
+            if (needsLogin) {
+                accountLauncher.launch(AccountActivity.intent(this@MainActivity))
+            } else {
+                mainViewModel.onAction(MainAction.SyncAccount)
+            }
+
+            if (BuildConfig.SELF_UPDATE && UpdateCheckerManager.shouldAutoCheck()) {
+                val hasUpdate = try {
+                    UpdateCheckerManager.checkForUpdate().hasUpdate
+                } catch (e: Exception) {
+                    LogUtil.w(AppConfig.TAG, "Startup update check failed", e)
+                    false
+                } finally {
+                    UpdateCheckerManager.markAutoChecked()
+                }
+                // CheckUpdateActivity checks again on open and offers the download.
+                if (hasUpdate) startActivity(Intent(this@MainActivity, CheckUpdateActivity::class.java))
+            }
+        }
     }
 
     @Composable
@@ -147,6 +191,10 @@ class MainActivity : HelperBaseComponentActivity() {
 
     private fun navigateTo(destination: MainDestination) {
         val intent = when (destination) {
+            MainDestination.Account -> {
+                accountLauncher.launch(AccountActivity.intent(this))
+                return
+            }
             MainDestination.Subscriptions -> Intent(this, SubSettingActivity::class.java)
             MainDestination.PerAppProxy -> Intent(this, PerAppProxyActivity::class.java)
             MainDestination.Routing -> Intent(this, RoutingSettingActivity::class.java)
