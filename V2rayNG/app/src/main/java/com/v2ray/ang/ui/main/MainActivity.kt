@@ -239,8 +239,41 @@ class MainActivity : HelperBaseComponentActivity() {
         if (mainViewModel.uiState.value.isRunning) {
             LauncherManager.stopService(this)
         } else {
-            requestServiceStart()
+            lifecycleScope.launch {
+                // VPS 007: the subscription may have been refreshed in the background (new server
+                // ids), so make sure the stored selection still points to an existing server.
+                val fixed = withContext(Dispatchers.IO) { ensureValidSelection() }
+                if (fixed) {
+                    mainViewModel.refreshSelectedGuid()
+                    mainViewModel.onAction(MainAction.RefreshGroups)
+                }
+                requestServiceStart()
+            }
         }
+    }
+
+    /**
+     * Returns true when the selection had to be changed: the stored server no longer exists, so the
+     * first server of the account subscription (or of any group) is selected instead.
+     */
+    private fun ensureValidSelection(): Boolean {
+        val current = MmkvManager.getSelectServer()
+        if (!current.isNullOrEmpty() && MmkvManager.decodeServerConfig(current) != null) return false
+        val preferred = CabinetManager.getLinkedSubscriptionId()
+            ?.let { MmkvManager.decodeServerList(it) }
+            .orEmpty()
+        val candidate = (preferred + MmkvManager.decodeAllServerList())
+            .firstOrNull { MmkvManager.decodeServerConfig(it) != null }
+            ?: return false
+        MmkvManager.setSelectServer(candidate)
+        return true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Pick up subscription refreshes done by the background worker while the app was hidden.
+        mainViewModel.refreshSelectedGuid()
+        mainViewModel.onAction(MainAction.RefreshGroups)
     }
 
     private fun requestServiceStart() {
@@ -348,6 +381,13 @@ class MainActivity : HelperBaseComponentActivity() {
     }
 
     private fun setSelectServer(guid: String) {
+        // A row from a list built before a background subscription refresh may point to a removed
+        // server; reload the list instead of storing a dead id («Неправильный профиль»).
+        if (MmkvManager.decodeServerConfig(guid) == null) {
+            mainViewModel.refreshSelectedGuid()
+            mainViewModel.onAction(MainAction.RefreshGroups)
+            return
+        }
         val selected = mainViewModel.uiState.value.selectedGuid
         if (guid != selected) {
             mainViewModel.updateSelectedGuid(guid)

@@ -163,14 +163,8 @@ fun MainHomeScreen(
                         isRunning = uiState.isRunning,
                         downSpeed = uiState.traffic?.downSpeed,
                         upSpeed = uiState.traffic?.upSpeed,
-                        onToggle = {
-                            // Make sure a server of the home group is selected before connecting.
-                            val row = selectedRow
-                            if (row != null && row.guid != uiState.selectedGuid) {
-                                onAction(MainAction.SelectServer(row.guid))
-                            }
-                            onAction(MainAction.ToggleService)
-                        },
+                        // MainActivity validates the stored selection before starting.
+                        onToggle = { onAction(MainAction.ToggleService) },
                     )
                     ServerPicker(
                         rows = rows,
