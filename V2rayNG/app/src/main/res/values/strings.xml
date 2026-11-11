@@ -619,13 +619,13 @@
     <string name="home_trial">Try 3 days for free</string>
     <string name="home_have_account">I have an account — Sign in</string>
     <string name="home_feature_servers_title">Servers</string>
-    <string name="home_feature_servers_text">Russia and Europe</string>
+    <string name="home_feature_servers_text">Russia, Europe and other locations</string>
     <string name="home_feature_devices_title">All devices</string>
-    <string name="home_feature_devices_text">One subscription for phone, computer and TV box</string>
+    <string name="home_feature_devices_text">One subscription for phone, computer and TV box. Android, iOS, Windows, macOS</string>
     <string name="home_feature_support_title">Support</string>
     <string name="home_feature_support_text">Tickets right in the app</string>
     <string name="home_feature_cabinet_title">Web account</string>
-    <string name="home_feature_cabinet_text">Pay and renew on the website</string>
+    <string name="home_feature_cabinet_text">Pay and renew on the website or in Telegram</string>
     <string name="home_sub_expired">Expired</string>
     <string name="home_sub_active_days">Active · %1$d d</string>
     <string name="home_sub_active">Active</string>

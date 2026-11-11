@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -584,6 +585,7 @@ private fun ServerPicker(
                 row = selected,
                 subtitle = subtitle,
                 trailing = if (expanded) "⌃" else "›",
+                active = true,
                 onClick = { expanded = !expanded },
             )
             AnimatedVisibility(visible = expanded) {
@@ -618,10 +620,17 @@ private fun ServerPicker(
 }
 
 @Composable
-private fun ServerRow(row: ServerRowUiModel, subtitle: String?, trailing: String?, onClick: () -> Unit) {
+private fun ServerRow(
+    row: ServerRowUiModel,
+    subtitle: String?,
+    trailing: String?,
+    onClick: () -> Unit,
+    active: Boolean = false,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .then(if (active) Modifier.activeShimmer() else Modifier)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -742,6 +751,36 @@ private fun quickLabel(dest: MainDestination): Int = when (dest) {
 // ---------------------------------------------------------------------------------------------
 
 private const val RENEW_HINT_DAYS = 3
+
+/** Selected server: soft blue tint with a light glare sweeping across every few seconds. */
+@Composable
+private fun Modifier.activeShimmer(): Modifier {
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val progress by transition.animateFloat(
+        initialValue = -0.6f,
+        targetValue = 1.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "glare",
+    )
+    return this
+        .background(Vps007Colors.Accent.copy(alpha = 0.12f))
+        .drawBehind {
+            val band = size.width * 0.35f
+            val x = progress * size.width
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.10f), Color.Transparent),
+                    start = Offset(x - band, 0f),
+                    end = Offset(x + band, size.height),
+                )
+            )
+            // Accent bar on the left edge, like the selection marker in the full list.
+            drawRect(color = Vps007Colors.Accent2, size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height))
+        }
+}
 
 private fun Modifier.homeCard(borderColor: Color = Vps007Colors.Line): Modifier = this
     .clip(RoundedCornerShape(16.dp))

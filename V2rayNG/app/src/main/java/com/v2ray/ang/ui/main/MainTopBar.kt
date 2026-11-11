@@ -48,7 +48,8 @@ fun MainTopBar(
     val maxMenuHeight = LocalConfiguration.current.screenHeightDp.dp - statusBarHeight - navBarHeight - 20.dp
 
     AppTopBar(
-        title = stringResource(R.string.title_server),
+        // VPS 007: this list is opened from the home screen; the back arrow returns there.
+        title = stringResource(R.string.app_name),
         onBackClick = {},
         isLoading = isLoading,
         isSearchActive = showSearch,
@@ -63,7 +64,7 @@ fun MainTopBar(
                 }
             } else {
                 IconButton(onClick = onMenuClick) {
-                    Icon(painterResource(R.drawable.ic_menu_24dp), contentDescription = stringResource(R.string.acc_open_menu))
+                    Icon(painterResource(R.drawable.ic_arrow_back_24dp), contentDescription = stringResource(R.string.acc_back))
                 }
             }
         },

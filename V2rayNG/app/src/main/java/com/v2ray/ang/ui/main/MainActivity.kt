@@ -158,6 +158,7 @@ class MainActivity : HelperBaseComponentActivity() {
             mainViewModel = mainViewModel,
             onAction = ::handleMainAction,
             onNavigate = { route -> navigateTo(route) },
+            onBackToHome = { showAllServers.value = false },
         )
     }
 

@@ -622,13 +622,13 @@
     <string name="home_trial">Попробовать 3 дня бесплатно</string>
     <string name="home_have_account">У меня есть аккаунт — Войти</string>
     <string name="home_feature_servers_title">Серверы</string>
-    <string name="home_feature_servers_text">Россия и Европа</string>
+    <string name="home_feature_servers_text">Россия, Европа и другие локации</string>
     <string name="home_feature_devices_title">Все устройства</string>
-    <string name="home_feature_devices_text">Одна подписка на телефон, компьютер и ТВ-приставку</string>
+    <string name="home_feature_devices_text">Одна подписка на телефон, компьютер и ТВ-приставку. Android, iOS, Windows, macOS</string>
     <string name="home_feature_support_title">Поддержка</string>
     <string name="home_feature_support_text">Обращения прямо в приложении</string>
     <string name="home_feature_cabinet_title">Личный кабинет</string>
-    <string name="home_feature_cabinet_text">Оплата и продление на сайте</string>
+    <string name="home_feature_cabinet_text">Оплата и продление на сайте или в Telegram</string>
     <string name="home_sub_expired">Закончилась</string>
     <string name="home_sub_active_days">Активна · %1$d дн.</string>
     <string name="home_sub_active">Активна</string>
