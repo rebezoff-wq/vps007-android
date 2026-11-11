@@ -142,6 +142,9 @@ object AppConfig {
     const val CABINET_API_URL = "https://fi.club-007.com/api/cabinet"
     const val CABINET_BOT_URL = "https://t.me/club_007_bot"
 
+    /** Web cabinet: works in a browser when Telegram is unreachable (e.g. subscription expired). */
+    const val CABINET_WEB_URL = "https://fi.club-007.com/"
+
     /** Remarks of the subscription the app manages for the logged-in account. */
     const val CABINET_SUB_REMARKS = "VPS 007"
 

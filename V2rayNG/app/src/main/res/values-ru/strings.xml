@@ -597,10 +597,13 @@
     <string name="account_subscription">Подписка</string>
     <string name="account_subscription_loading">Загрузка…</string>
     <string name="account_subscription_unknown">Нажмите «Обновить подписку», чтобы загрузить статус.</string>
-    <string name="account_subscription_none">Активной подписки нет. Оформите её или получите пробный период в боте.</string>
+    <string name="account_subscription_none">Активной подписки нет. Оформите её или получите пробный период в личном кабинете или в боте.</string>
     <string name="account_subscription_active_until">Активна до %1$s</string>
-    <string name="account_subscription_expired">Закончилась %1$s. Продлите её в боте.</string>
+    <string name="account_subscription_expired">Закончилась %1$s. Продлите её в личном кабинете или в боте.</string>
     <string name="account_refresh">Обновить подписку</string>
+    <string name="account_renew_in_cabinet">Продлить в личном кабинете</string>
+    <string name="account_no_account_cabinet">Или зарегистрируйтесь в личном кабинете (без Telegram)</string>
+    <string name="account_cabinet_hint">Если Telegram не открывается, продлите подписку в личном кабинете fi.club-007.com — вход по email.</string>
     <string name="account_renew_in_bot">Продлить в боте</string>
     <string name="account_logout">Выйти из аккаунта</string>
     <string name="account_error_fill_fields">Введите email и пароль.</string>

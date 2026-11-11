@@ -594,10 +594,13 @@
     <string name="account_subscription">Subscription</string>
     <string name="account_subscription_loading">Loading…</string>
     <string name="account_subscription_unknown">Tap «Refresh subscription» to load the status.</string>
-    <string name="account_subscription_none">No active subscription. You can buy one or get a trial in the bot.</string>
+    <string name="account_subscription_none">No active subscription. Buy one or get a trial in the web account or in the bot.</string>
     <string name="account_subscription_active_until">Active until %1$s</string>
-    <string name="account_subscription_expired">Expired on %1$s. Renew it in the bot.</string>
+    <string name="account_subscription_expired">Expired on %1$s. Renew it in the web account or in the bot.</string>
     <string name="account_refresh">Refresh subscription</string>
+    <string name="account_renew_in_cabinet">Renew in the web account</string>
+    <string name="account_no_account_cabinet">Or sign up in the web account (no Telegram needed)</string>
+    <string name="account_cabinet_hint">If Telegram does not open, use the web account at fi.club-007.com: sign in with your email.</string>
     <string name="account_renew_in_bot">Renew in the bot</string>
     <string name="account_logout">Sign out</string>
     <string name="account_error_fill_fields">Enter email and password.</string>

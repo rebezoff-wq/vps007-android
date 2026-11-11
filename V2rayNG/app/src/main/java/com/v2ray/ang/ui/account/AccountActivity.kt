@@ -85,6 +85,7 @@ class AccountActivity : BaseComponentActivity() {
             state = state,
             onAction = viewModel::onAction,
             onOpenBot = { Utils.openUri(this, AppConfig.CABINET_BOT_URL) },
+            onOpenCabinet = { Utils.openUri(this, AppConfig.CABINET_WEB_URL) },
             onBackClick = { finish() },
         )
     }
@@ -99,6 +100,7 @@ fun AccountScreen(
     state: AccountUiState,
     onAction: (AccountAction) -> Unit,
     onOpenBot: () -> Unit,
+    onOpenCabinet: () -> Unit,
     onBackClick: () -> Unit,
 ) {
     Scaffold(
@@ -140,9 +142,9 @@ fun AccountScreen(
             }
 
             if (state.loggedIn) {
-                LoggedInContent(state, onAction, onOpenBot)
+                LoggedInContent(state, onAction, onOpenBot, onOpenCabinet)
             } else {
-                LoginContent(state, onAction, onOpenBot)
+                LoginContent(state, onAction, onOpenBot, onOpenCabinet)
             }
             NavigationBarsSpacer()
         }
@@ -154,6 +156,7 @@ private fun LoginContent(
     state: AccountUiState,
     onAction: (AccountAction) -> Unit,
     onOpenBot: () -> Unit,
+    onOpenCabinet: () -> Unit,
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     // Not saveable on purpose: the password is not written to the saved-state bundle.
@@ -245,6 +248,9 @@ private fun LoginContent(
     TextButton(onClick = onOpenBot, modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.account_no_account))
     }
+    TextButton(onClick = onOpenCabinet, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.account_no_account_cabinet))
+    }
 }
 
 @Composable
@@ -252,6 +258,7 @@ private fun LoggedInContent(
     state: AccountUiState,
     onAction: (AccountAction) -> Unit,
     onOpenBot: () -> Unit,
+    onOpenCabinet: () -> Unit,
 ) {
     Text(
         text = stringResource(R.string.account_logged_in),
@@ -276,9 +283,18 @@ private fun LoggedInContent(
     ) {
         Text(stringResource(R.string.account_refresh))
     }
+    // The web cabinet comes first: with an expired subscription Telegram may be unreachable.
+    OutlinedButton(onClick = onOpenCabinet, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.account_renew_in_cabinet))
+    }
     OutlinedButton(onClick = onOpenBot, modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.account_renew_in_bot))
     }
+    Text(
+        text = stringResource(R.string.account_cabinet_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
     TextButton(
         onClick = { onAction(AccountAction.Logout) },
         enabled = !state.busy,
