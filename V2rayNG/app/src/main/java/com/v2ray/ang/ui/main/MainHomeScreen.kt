@@ -159,6 +159,13 @@ fun MainHomeScreen(
                         usage = homeGroup?.usageInfo,
                         onRenew = { onNavigate(MainDestination.Renew) },
                     )
+                    if (uiState.deviceLimit > 0 && uiState.deviceTotal > uiState.deviceLimit) {
+                        DeviceLimitBanner(
+                            total = uiState.deviceTotal,
+                            limit = uiState.deviceLimit,
+                            onClick = { onNavigate(MainDestination.Devices) },
+                        )
+                    }
                     PowerSection(
                         isRunning = uiState.isRunning,
                         downSpeed = uiState.traffic?.downSpeed,
@@ -417,6 +424,30 @@ private fun Chip(text: String, color: Color) {
             .background(color.copy(alpha = 0.14f), RoundedCornerShape(50))
             .padding(horizontal = 8.dp, vertical = 3.dp),
     )
+}
+
+@Composable
+private fun DeviceLimitBanner(total: Int, limit: Int, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .fillMaxWidth()
+            .homeCard(borderColor = Vps007Colors.Gold.copy(alpha = 0.6f))
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.devices_count_limit, total, limit),
+                color = Vps007Colors.Gold,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp,
+            )
+            Text(stringResource(R.string.devices_banner_hint), color = Vps007Colors.Text2, fontSize = 12.sp)
+        }
+        Text("›", color = Vps007Colors.Muted, fontSize = 18.sp)
+    }
 }
 
 // ---------------------------------------------------------------------------------------------

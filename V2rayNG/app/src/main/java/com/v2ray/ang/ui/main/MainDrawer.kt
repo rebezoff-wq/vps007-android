@@ -39,6 +39,7 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
     Account(R.drawable.ic_lock_24dp, R.string.title_account),
     AllServers(R.drawable.ic_routing_24dp, R.string.home_all_servers),
     Support(R.drawable.ic_feedback_24dp, R.string.home_action_support),
+    Devices(R.drawable.ic_per_apps_24dp, R.string.devices_title),
     /** Opens the web cabinet to renew / buy (not listed in the drawer). */
     Renew(R.drawable.ic_subscriptions_24dp, R.string.home_action_renew),
     Subscriptions(R.drawable.ic_subscriptions_24dp, R.string.title_sub_setting),
@@ -55,6 +56,7 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
 
 private val primaryDrawerItems = listOf(
     MainDestination.Account,
+    MainDestination.Devices,
     MainDestination.Support,
     MainDestination.AllServers,
     MainDestination.Subscriptions,

@@ -112,3 +112,23 @@ data class CabinetTicketDetail(
     @SerializedName("is_reply_blocked") val isReplyBlocked: Boolean = false,
     @SerializedName("messages") val messages: List<CabinetTicketMessage> = emptyList(),
 )
+
+// ---------------------------------------------------------------------------
+// Devices (`/api/cabinet/subscription/devices`) — Remnawave HWID devices
+// ---------------------------------------------------------------------------
+
+data class CabinetDevice(
+    @SerializedName("hwid") val hwid: String = "",
+    @SerializedName("platform") val platform: String? = null,
+    @SerializedName("device_model") val deviceModel: String? = null,
+    /** Last activity (Remnawave updatedAt), ISO-8601. */
+    @SerializedName("created_at") val lastSeen: String? = null,
+    @SerializedName("local_name") val localName: String? = null,
+)
+
+data class CabinetDevices(
+    @SerializedName("devices") val devices: List<CabinetDevice> = emptyList(),
+    @SerializedName("total") val total: Int = 0,
+    /** 0 = no limit. */
+    @SerializedName("device_limit") val deviceLimit: Int = 0,
+)

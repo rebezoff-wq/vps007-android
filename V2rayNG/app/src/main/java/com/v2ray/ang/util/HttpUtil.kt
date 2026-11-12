@@ -35,11 +35,12 @@ object HttpUtil {
      * Skipped silently when the application context is unavailable (e.g. JVM unit tests).
      */
     @SuppressLint("HardwareIds")
+    fun currentHwid(): String? = runCatching {
+        Settings.Secure.getString(AngApplication.application.contentResolver, Settings.Secure.ANDROID_ID)
+    }.getOrNull()?.takeIf { it.isNotBlank() }
+
     private fun applyRemnawaveDeviceHeaders(requestBuilder: Request.Builder) {
-        val hwid = runCatching {
-            Settings.Secure.getString(AngApplication.application.contentResolver, Settings.Secure.ANDROID_ID)
-        }.getOrNull()
-        if (hwid.isNullOrBlank()) return
+        val hwid = currentHwid() ?: return
         try {
             requestBuilder.header("x-hwid", hwid)
             requestBuilder.header("x-device-os", "Android")

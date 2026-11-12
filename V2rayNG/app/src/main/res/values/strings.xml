@@ -673,4 +673,18 @@
     <string name="vps_per_app_enable_hint">Apply the rule only to the checked apps</string>
     <string name="vps_per_app_bypass_on">Checked apps go direct, everything else goes through VPS 007</string>
     <string name="vps_per_app_bypass_off">Only the checked apps go through VPS 007</string>
+
+    <!-- VPS 007 devices -->
+    <string name="devices_title">My devices</string>
+    <string name="devices_count_limit">Devices: %1$d of %2$d</string>
+    <string name="devices_count">Devices: %1$d</string>
+    <string name="devices_hint">Each app on a device counts separately. Remove the ones you no longer use.</string>
+    <string name="devices_over_hint">Limit exceeded. Remove devices you don\'t use, otherwise new ones can\'t connect.</string>
+    <string name="devices_banner_hint">Over the limit — tap to remove extra devices</string>
+    <string name="devices_empty">No devices yet.</string>
+    <string name="devices_this">This device</string>
+    <string name="devices_seen">seen %1$s</string>
+    <string name="devices_delete">Remove</string>
+    <string name="devices_delete_title">Remove device?</string>
+    <string name="devices_delete_text">«%1$s» will be unlinked from the subscription. If it updates the subscription again, it takes a slot again.</string>
 </resources>

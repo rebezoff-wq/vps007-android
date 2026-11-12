@@ -676,4 +676,18 @@
     <string name="vps_per_app_enable_hint">Применять правило только к отмеченным приложениям</string>
     <string name="vps_per_app_bypass_on">Отмеченные приложения работают напрямую, остальные — через VPS 007</string>
     <string name="vps_per_app_bypass_off">Через VPS 007 работают только отмеченные приложения</string>
+
+    <!-- VPS 007 devices -->
+    <string name="devices_title">Мои устройства</string>
+    <string name="devices_count_limit">Устройств: %1$d из %2$d</string>
+    <string name="devices_count">Устройств: %1$d</string>
+    <string name="devices_hint">Каждое приложение на устройстве считается отдельно. Удалите те, которыми больше не пользуетесь.</string>
+    <string name="devices_over_hint">Лимит превышен. Удалите устройства, которыми не пользуетесь, — иначе новые не подключатся.</string>
+    <string name="devices_banner_hint">Больше лимита — нажмите, чтобы удалить лишние</string>
+    <string name="devices_empty">Устройств пока нет.</string>
+    <string name="devices_this">Это устройство</string>
+    <string name="devices_seen">был %1$s</string>
+    <string name="devices_delete">Удалить</string>
+    <string name="devices_delete_title">Удалить устройство?</string>
+    <string name="devices_delete_text">«%1$s» будет отвязано от подписки. Если оно снова обновит подписку, то займёт место заново.</string>
 </resources>

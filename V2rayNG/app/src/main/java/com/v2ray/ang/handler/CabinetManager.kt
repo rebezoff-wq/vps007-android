@@ -8,6 +8,7 @@ import com.v2ray.ang.dto.CabinetDeepLinkToken
 import com.v2ray.ang.dto.CabinetError
 import com.v2ray.ang.dto.CabinetResult
 import com.v2ray.ang.dto.CabinetSubscriptionStatus
+import com.v2ray.ang.dto.CabinetDevices
 import com.v2ray.ang.dto.CabinetSyncResult
 import com.v2ray.ang.dto.CabinetTicket
 import com.v2ray.ang.dto.CabinetTicketDetail
@@ -27,6 +28,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.net.URLEncoder
 import java.security.KeyStore
 import java.util.concurrent.TimeUnit
 import javax.crypto.Cipher
@@ -200,6 +202,25 @@ object CabinetManager {
     }
 
     // ---------------------------------------------------------------------
+    // Devices (HWID)
+    // ---------------------------------------------------------------------
+
+    suspend fun listDevices(): CabinetResult<CabinetDevices> = withContext(Dispatchers.IO) {
+        val r = authorized("/subscription/devices", null) ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        if (r.code != 200) return@withContext CabinetResult.Failure(mapError(r.code, r.body))
+        val devices = r.body?.let { JsonUtil.fromJsonSafe(it, CabinetDevices::class.java) }
+            ?: return@withContext CabinetResult.Failure(CabinetError.SERVER)
+        CabinetResult.Success(devices)
+    }
+
+    suspend fun deleteDevice(hwid: String): CabinetResult<Unit> = withContext(Dispatchers.IO) {
+        val path = "/subscription/devices/" + URLEncoder.encode(hwid, "UTF-8").replace("+", "%20")
+        val r = authorized(path, null, method = "DELETE")
+            ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        if (r.code in 200..299) CabinetResult.Success(Unit) else CabinetResult.Failure(mapError(r.code, r.body))
+    }
+
+    // ---------------------------------------------------------------------
     // Support tickets
     // ---------------------------------------------------------------------
 
@@ -284,11 +305,15 @@ object CabinetManager {
     /** GET with the access token; on 401 refreshes the token once and retries. */
     private suspend fun authorizedGet(path: String): HttpResult? = authorized(path, null)
 
-    /** GET (jsonBody == null) or POST with the access token; on 401 refreshes once and retries. */
-    private suspend fun authorized(path: String, jsonBody: String?): HttpResult? {
+    /** GET (jsonBody == null), POST or DELETE with the access token; on 401 refreshes once and retries. */
+    private suspend fun authorized(path: String, jsonBody: String?, method: String? = null): HttpResult? {
         val access = readSecret(KEY_ACCESS) ?: return HttpResult(401, null)
         val send: (String?) -> HttpResult? = { token ->
-            if (jsonBody == null) get(path, token) else post(path, jsonBody, token)
+            when {
+                method == "DELETE" -> execute(Request.Builder().url(AppConfig.CABINET_API_URL + path).delete(), token)
+                jsonBody == null -> get(path, token)
+                else -> post(path, jsonBody, token)
+            }
         }
         val first = send(access) ?: return null
         if (first.code != 401) return first

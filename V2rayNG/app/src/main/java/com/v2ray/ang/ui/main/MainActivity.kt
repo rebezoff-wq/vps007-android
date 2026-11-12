@@ -32,6 +32,7 @@ import com.v2ray.ang.handler.UpdateCheckerManager
 import com.v2ray.ang.ui.AboutActivity
 import com.v2ray.ang.ui.account.AccountActivity
 import com.v2ray.ang.ui.support.SupportActivity
+import com.v2ray.ang.ui.devices.DevicesActivity
 import com.v2ray.ang.ui.backup.BackupActivity
 import com.v2ray.ang.ui.base.HelperBaseComponentActivity
 import com.v2ray.ang.ui.checkupdate.CheckUpdateActivity
@@ -100,8 +101,10 @@ class MainActivity : HelperBaseComponentActivity() {
 
     private val accountLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            // Login or logout may have added/removed the account subscription.
+            // Login/logout may have added/removed the account subscription; device removal changes
+            // the device count — resync both.
             mainViewModel.onAction(MainAction.RefreshGroups)
+            mainViewModel.onAction(MainAction.SyncAccount)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -211,6 +214,10 @@ class MainActivity : HelperBaseComponentActivity() {
                 return
             }
             MainDestination.Support -> SupportActivity.intent(this)
+            MainDestination.Devices -> {
+                accountLauncher.launch(DevicesActivity.intent(this))
+                return
+            }
             MainDestination.Renew -> {
                 Utils.openUri(this, AppConfig.CABINET_WEB_URL)
                 return

@@ -29,6 +29,9 @@ data class MainUiState(
     val shareQRCodeBitmap: android.graphics.Bitmap? = null,
     /** Live speed / session traffic while connected (null when disconnected). */
     val traffic: com.v2ray.ang.dto.TrafficSnapshot? = null,
+    /** Account devices (Remnawave HWID) vs. the plan limit; limit 0 = unknown / unlimited. */
+    val deviceTotal: Int = 0,
+    val deviceLimit: Int = 0,
 )
 
 /**

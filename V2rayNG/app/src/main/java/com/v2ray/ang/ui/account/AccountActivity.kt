@@ -290,6 +290,13 @@ private fun LoggedInContent(
     OutlinedButton(onClick = onOpenBot, modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.account_renew_in_bot))
     }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    OutlinedButton(
+        onClick = { context.startActivity(com.v2ray.ang.ui.devices.DevicesActivity.intent(context)) },
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(stringResource(R.string.devices_title))
+    }
     Text(
         text = stringResource(R.string.account_cabinet_hint),
         style = MaterialTheme.typography.bodySmall,

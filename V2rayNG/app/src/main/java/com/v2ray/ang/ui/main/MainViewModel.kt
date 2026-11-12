@@ -560,6 +560,15 @@ class MainViewModel(
                 setupGroupTab(forceRefresh = true)
                 refreshSelectedGuid()
             }
+            val devices = CabinetManager.listDevices()
+            if (devices is CabinetResult.Success) {
+                _uiState.update {
+                    it.copy(
+                        deviceTotal = maxOf(devices.value.total, devices.value.devices.size),
+                        deviceLimit = devices.value.deviceLimit,
+                    )
+                }
+            }
         }
     }
 
