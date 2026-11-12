@@ -145,6 +145,11 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        APK=$(ls V2rayNG/app/build/outputs/apk/playstore/release/*universal*.apk 2>/dev/null | head -1)
+        [ -n "$APK" ] || APK=$(ls V2rayNG/app/build/outputs/apk/playstore/release/*arm64-v8a*.apk | head -1)
+        echo "Stable APK from: $APK"
+        cp "$APK" vps007-latest.apk
+        sha256sum vps007-latest.apk > vps007-latest.apk.sha256
         gh release create "${GITHUB_REF_NAME}" \
-          V2rayNG/app/build/outputs/apk/playstore/release/*.apk \
+          V2rayNG/app/build/outputs/apk/playstore/release/*.apk vps007-latest.apk vps007-latest.apk.sha256 \
           --repo "${GITHUB_REPOSITORY}" --title "VPS 007 ${GITHUB_REF_NAME}" --generate-notes
