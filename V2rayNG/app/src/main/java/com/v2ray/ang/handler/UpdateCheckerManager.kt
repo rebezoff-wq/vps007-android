@@ -25,6 +25,12 @@ object UpdateCheckerManager {
     }
 
     suspend fun checkForUpdate(includePreRelease: Boolean = false): CheckUpdateResult = withContext(Dispatchers.IO) {
+        // GitHub (API and asset hosts) is often slow or blocked in Russia; the own mirror is tried
+        // first. Pre-releases and F-Droid builds are not mirrored and keep using GitHub.
+        if (!includePreRelease && !BuildConfig.APPLICATION_ID.contains("fdroid", ignoreCase = true)) {
+            checkMirror()?.let { return@withContext it }
+        }
+
         val url = if (includePreRelease) {
             AppConfig.APP_API_URL
         } else {
@@ -85,6 +91,31 @@ object UpdateCheckerManager {
         }
     }
 
+    /** Null when the mirror is unreachable or answers garbage: the caller falls back to GitHub. */
+    private fun checkMirror(): CheckUpdateResult? {
+        val text = try {
+            HttpUtil.getUrlContent(UrlContentRequest(url = AppConfig.APP_MIRROR_VERSION_URL, timeout = 5000))
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "Update check: mirror version request failed", e)
+            null
+        }
+        val latestVersion = parseMirrorVersion(text)
+        if (latestVersion == null) {
+            LogUtil.w(AppConfig.TAG, "Update check: mirror version unavailable, falling back to GitHub")
+            return null
+        }
+        LogUtil.i(AppConfig.TAG, "Mirror version: $latestVersion (current: ${BuildConfig.VERSION_NAME})")
+        return if (compareVersions(latestVersion, BuildConfig.VERSION_NAME) > 0) {
+            CheckUpdateResult(
+                hasUpdate = true,
+                latestVersion = latestVersion,
+                downloadUrl = AppConfig.APP_MIRROR_DOWNLOAD_URL,
+            )
+        } else {
+            CheckUpdateResult(hasUpdate = false)
+        }
+    }
+
     private fun compareVersions(version1: String, version2: String): Int {
         val v1 = version1.split(".")
         val v2 = version2.split(".")
@@ -114,3 +145,10 @@ object UpdateCheckerManager {
             ?: throw IllegalStateException("No compatible APK found")
     }
 }
+
+/**
+ * Mirror `version` body («v1.3.3\n») -> «1.3.3». Null for anything that is not a plain dotted
+ * version (HTML error page, empty body, «1.0.1-test»), so a bad answer never offers an update.
+ */
+internal fun parseMirrorVersion(text: String?): String? =
+    text?.trim()?.removePrefix("v")?.takeIf { Regex("""\d+(\.\d+){0,3}""").matches(it) }

@@ -151,6 +151,15 @@ object AppConfig {
     /** Background refresh interval for the account subscription, in minutes. */
     const val CABINET_SUB_UPDATE_INTERVAL_MINUTES = 360L
 
+    /**
+     * Own mirror of the latest release APK (synced from GitHub Releases every 10 min by the panel
+     * server). Reachable in Russia without GitHub; Content-Disposition makes browsers download it.
+     */
+    const val APP_MIRROR_DOWNLOAD_URL = "https://fi.club-007.com/download/android"
+
+    /** Plain-text tag of the APK the mirror currently serves, e.g. «v1.3.3». */
+    const val APP_MIRROR_VERSION_URL = "https://fi.club-007.com/download/android/version"
+
     /** Minimum time between automatic app update checks on startup. */
     const val APP_UPDATE_CHECK_INTERVAL_MS = 24L * 60 * 60 * 1000
 
