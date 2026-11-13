@@ -3,6 +3,7 @@ package com.v2ray.ang.ui.account
 import android.content.Context
 import android.content.Intent
 import androidx.activity.viewModels
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -264,6 +266,24 @@ private fun LoggedInContent(
         text = stringResource(R.string.account_logged_in),
         style = MaterialTheme.typography.headlineSmall,
     )
+    state.identity?.let { identity ->
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            identity.telegram?.let {
+                Text(
+                    text = stringResource(R.string.account_identity_telegram, it),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            identity.email?.let {
+                Text(
+                    text = stringResource(R.string.account_identity_email, it),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -276,6 +296,7 @@ private fun LoggedInContent(
             Text(subscriptionText(state.sync, state.busy))
         }
     }
+    state.trial?.let { TrialContent(it, state.busy, onAction) }
     Button(
         onClick = { onAction(AccountAction.RefreshSubscription) },
         enabled = !state.busy,
@@ -309,6 +330,50 @@ private fun LoggedInContent(
     ) {
         Text(stringResource(R.string.account_logout), color = MaterialTheme.colorScheme.error)
     }
+}
+
+@Composable
+private fun TrialContent(trial: TrialOffer, busy: Boolean, onAction: (AccountAction) -> Unit) {
+    when (trial) {
+        is TrialOffer.Available -> {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.account_trial_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    if (trial.days > 0) {
+                        Text(pluralStringResource(R.plurals.account_trial_days, trial.days, trial.days))
+                    }
+                }
+            }
+            Button(
+                onClick = { onAction(AccountAction.ActivateTrial) },
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    trial.priceRubles?.let { stringResource(R.string.account_trial_activate_paid, formatRubles(it)) }
+                        ?: stringResource(R.string.account_trial_activate)
+                )
+            }
+        }
+
+        TrialOffer.Used -> TrialNote(R.string.account_trial_used)
+        TrialOffer.Unavailable -> TrialNote(R.string.account_trial_unavailable)
+    }
+}
+
+@Composable
+private fun TrialNote(@StringRes res: Int) {
+    Text(
+        text = stringResource(res),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Composable

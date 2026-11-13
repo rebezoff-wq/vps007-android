@@ -614,6 +614,20 @@
     <string name="account_error_too_many">Слишком много попыток. Подождите минуту и попробуйте снова.</string>
     <string name="account_error_network">Нет связи с сервером. Проверьте интернет и попробуйте снова.</string>
     <string name="account_error_server">Ошибка сервера. Попробуйте позже.</string>
+    <string name="account_identity_telegram">Telegram: %1$s</string>
+    <string name="account_identity_email">Email: %1$s</string>
+    <string name="account_trial_title">Пробный период</string>
+    <plurals name="account_trial_days">
+        <item quantity="one">%1$d день VPN. Серверы появятся сразу после активации.</item>
+        <item quantity="few">%1$d дня VPN. Серверы появятся сразу после активации.</item>
+        <item quantity="many">%1$d дней VPN. Серверы появятся сразу после активации.</item>
+        <item quantity="other">%1$d дня VPN. Серверы появятся сразу после активации.</item>
+    </plurals>
+    <string name="account_trial_activate">Активировать пробный период</string>
+    <string name="account_trial_activate_paid">Активировать пробный период за %1$s ₽</string>
+    <string name="account_trial_used">Пробный период уже использован.</string>
+    <string name="account_trial_unavailable">Пробный период для этого аккаунта недоступен.</string>
+    <string name="account_error_trial_balance">Недостаточно средств на балансе для активации. Пополните баланс в личном кабинете.</string>
 
     <!-- VPS 007 home & support -->
     <string name="home_menu">Меню</string>

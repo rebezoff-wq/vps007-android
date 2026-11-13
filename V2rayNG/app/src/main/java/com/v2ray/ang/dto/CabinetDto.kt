@@ -31,6 +31,26 @@ data class CabinetSubscription(
     @SerializedName("subscription_url") val subscriptionUrl: String? = null,
 )
 
+/** `GET /auth/me`. Email-only accounts have no Telegram id/username and vice versa. */
+data class CabinetUser(
+    @SerializedName("id") val id: Long = 0,
+    @SerializedName("telegram_id") val telegramId: Long? = null,
+    @SerializedName("username") val username: String? = null,
+    @SerializedName("first_name") val firstName: String? = null,
+    @SerializedName("last_name") val lastName: String? = null,
+    @SerializedName("email") val email: String? = null,
+)
+
+/** `GET /subscription/trial`. */
+data class CabinetTrialInfo(
+    @SerializedName("is_available") val isAvailable: Boolean = false,
+    @SerializedName("duration_days") val durationDays: Int = 0,
+    @SerializedName("requires_payment") val requiresPayment: Boolean = false,
+    @SerializedName("price_rubles") val priceRubles: Double = 0.0,
+    /** English server text, set only when [isAvailable] is false. */
+    @SerializedName("reason_unavailable") val reasonUnavailable: String? = null,
+)
+
 /** Outcome of a cabinet call, mapped to what the UI needs to show. */
 sealed interface CabinetResult<out T> {
     data class Success<T>(val value: T) : CabinetResult<T>
@@ -69,6 +89,15 @@ enum class CabinetError {
 
     /** No saved login: the user must sign in first. */
     NOT_LOGGED_IN,
+
+    /** Trial: already used by this account. */
+    TRIAL_USED,
+
+    /** Trial: switched off for this account type, or the account already has a subscription. */
+    TRIAL_UNAVAILABLE,
+
+    /** Trial: activation is paid and the balance is too low. */
+    INSUFFICIENT_BALANCE,
 }
 
 /** Result of loading the account subscription into the server list. */

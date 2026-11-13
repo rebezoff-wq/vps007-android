@@ -14,6 +14,8 @@ import com.v2ray.ang.dto.CabinetTicket
 import com.v2ray.ang.dto.CabinetTicketDetail
 import com.v2ray.ang.dto.CabinetTicketList
 import com.v2ray.ang.dto.CabinetTokens
+import com.v2ray.ang.dto.CabinetTrialInfo
+import com.v2ray.ang.dto.CabinetUser
 import com.v2ray.ang.dto.entities.SubscriptionCache
 import com.v2ray.ang.dto.entities.SubscriptionItem
 import com.v2ray.ang.util.JsonUtil
@@ -198,6 +200,39 @@ object CabinetManager {
         val sub = MmkvManager.decodeSubscription(defaultId) ?: return
         if (sub.url.isBlank() && MmkvManager.decodeServerList(defaultId).isEmpty()) {
             MmkvManager.removeSubscription(defaultId)
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Account profile and trial
+    // ---------------------------------------------------------------------
+
+    /** Who the session belongs to (email and/or Telegram), shown on the account screen. */
+    suspend fun getMe(): CabinetResult<CabinetUser> = withContext(Dispatchers.IO) {
+        val r = authorized("/auth/me", null) ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        if (r.code != 200) return@withContext CabinetResult.Failure(mapError(r.code, r.body))
+        val user = r.body?.let { JsonUtil.fromJsonSafe(it, CabinetUser::class.java) }
+            ?: return@withContext CabinetResult.Failure(CabinetError.SERVER)
+        CabinetResult.Success(user)
+    }
+
+    suspend fun getTrialInfo(): CabinetResult<CabinetTrialInfo> = withContext(Dispatchers.IO) {
+        val r = authorized("/subscription/trial", null)
+            ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        if (r.code != 200) return@withContext CabinetResult.Failure(mapError(r.code, r.body))
+        val info = r.body?.let { JsonUtil.fromJsonSafe(it, CabinetTrialInfo::class.java) }
+            ?: return@withContext CabinetResult.Failure(CabinetError.SERVER)
+        CabinetResult.Success(info)
+    }
+
+    /** Activates the trial on the server; the caller then runs [syncSubscription] to load the servers. */
+    suspend fun activateTrial(): CabinetResult<Unit> = withContext(Dispatchers.IO) {
+        val r = authorized("/subscription/trial", "{}")
+            ?: return@withContext CabinetResult.Failure(CabinetError.NETWORK)
+        if (r.code in 200..299) {
+            CabinetResult.Success(Unit)
+        } else {
+            CabinetResult.Failure(trialActivationError(r.code, r.body) ?: mapError(r.code, r.body))
         }
     }
 
@@ -407,4 +442,17 @@ object CabinetManager {
             null
         }
     }
+}
+
+/**
+ * Trial-specific errors of `POST /subscription/trial`, or null for generic codes. The server sends
+ * English details (bot `app/cabinet/routes/subscription_modules/purchase.py`). Top-level so JVM
+ * tests do not initialize [CabinetManager].
+ */
+internal fun trialActivationError(code: Int, body: String?): CabinetError? = when {
+    code == 402 -> CabinetError.INSUFFICIENT_BALANCE
+    code != 400 -> null
+    body?.contains("already used", ignoreCase = true) == true -> CabinetError.TRIAL_USED
+    body?.contains("balance", ignoreCase = true) == true -> CabinetError.INSUFFICIENT_BALANCE
+    else -> CabinetError.TRIAL_UNAVAILABLE
 }
