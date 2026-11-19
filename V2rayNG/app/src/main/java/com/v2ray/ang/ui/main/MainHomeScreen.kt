@@ -92,12 +92,14 @@ fun MainHomeScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Group with the account subscription; falls back to the currently selected group.
+    // Group with the account subscription; falls back to the currently selected group. The virtual
+    // «All» group (empty id) merges every subscription, so the same servers would repeat.
     val loggedIn = remember(uiState.groups) { CabinetManager.isLoggedIn() }
     val linkedId = remember(uiState.groups) { CabinetManager.getLinkedSubscriptionId() }
-    val homeGroup = uiState.groups.firstOrNull { it.id == linkedId }
-        ?: uiState.groups.firstOrNull { it.id == uiState.selectedGroupId }
-        ?: uiState.groups.firstOrNull()
+    val realGroups = uiState.groups.filter { it.id.isNotEmpty() }
+    val homeGroup = realGroups.firstOrNull { it.id == linkedId }
+        ?: realGroups.firstOrNull { it.id == uiState.selectedGroupId }
+        ?: realGroups.firstOrNull()
     val homeGroupId = homeGroup?.id.orEmpty()
 
     LaunchedEffect(homeGroupId) {

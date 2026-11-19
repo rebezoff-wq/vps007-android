@@ -327,15 +327,20 @@ object CabinetManager {
     }
 
     /**
-     * Removes the linked subscription and every other group the app created for an account
-     * (remarks [AppConfig.CABINET_SUB_REMARKS]) except [keepSubId], cancelling their background
-     * updates. Returns true if anything was removed.
+     * Removes the linked subscription and every other account group (remarks
+     * [AppConfig.CABINET_SUB_REMARKS] or a link starting with [AppConfig.CABINET_SUB_URL_PREFIX],
+     * e.g. imported from the bot) except [keepSubId], cancelling their background updates.
+     * Returns true if anything was removed.
      */
     private fun removeAccountSubscriptions(keepSubId: String?): Boolean {
         val linkedId = getLinkedSubscriptionId()
         val toRemove = MmkvManager.decodeSubscriptions()
             .filter { it.guid != keepSubId }
-            .filter { it.guid == linkedId || it.subscription.remarks == AppConfig.CABINET_SUB_REMARKS }
+            .filter {
+                it.guid == linkedId ||
+                        it.subscription.remarks == AppConfig.CABINET_SUB_REMARKS ||
+                        it.subscription.url.startsWith(AppConfig.CABINET_SUB_URL_PREFIX, ignoreCase = true)
+            }
             .map { it.guid }
         toRemove.forEach { subId ->
             LogUtil.i(AppConfig.TAG, "Cabinet: removing account subscription $subId")

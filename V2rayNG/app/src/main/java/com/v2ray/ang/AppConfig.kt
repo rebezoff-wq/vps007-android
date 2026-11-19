@@ -148,6 +148,12 @@ object AppConfig {
     /** Remarks of the subscription the app manages for the logged-in account. */
     const val CABINET_SUB_REMARKS = "VPS 007"
 
+    /**
+     * Subscription links of the service accounts (Remnawave). Groups with such a link belong to an
+     * account even when imported by hand or from the bot (remarks «import sub»).
+     */
+    const val CABINET_SUB_URL_PREFIX = "https://sub.club-007.com/"
+
     /** Background refresh interval for the account subscription, in minutes. */
     const val CABINET_SUB_UPDATE_INTERVAL_MINUTES = 360L
 
