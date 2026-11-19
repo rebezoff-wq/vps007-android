@@ -305,7 +305,8 @@ object AngConfigManager {
         val keyToProfile = linkedMapOf<String, ProfileItem>()
         val rawConfigs = mutableMapOf<String, String>()
 
-        configs.forEach { parsed ->
+        // A subscription that lists the same server twice must not show it twice.
+        configs.distinctBy { it.rawConfig ?: JsonUtil.toJson(it.profile) }.forEach { parsed ->
             val key = Utils.getUuid()
             keyToProfile[key] = parsed.profile
             parsed.rawConfig?.let { raw -> rawConfigs[key] = raw }
@@ -559,7 +560,20 @@ object AngConfigManager {
                 return SubscriptionUpdateResult(failureCount = 1)
             }
 
+            // The group may have been deleted while the request was running (e.g. account logout);
+            // saving now would bring it back with its servers.
+            if (MmkvManager.decodeSubscription(it.guid) == null) {
+                LogUtil.i(AppConfig.TAG, "Subscription ${it.guid} removed during update, result dropped")
+                return SubscriptionUpdateResult(skipCount = 1)
+            }
+
             val count = parseConfigViaSub(configText, it.guid, false)
+            if (count > 0 && MmkvManager.decodeSubscription(it.guid) == null) {
+                // Removed while parsing: drop the servers that were just written for it.
+                MmkvManager.removeServerViaSubid(it.guid)
+                LogUtil.i(AppConfig.TAG, "Subscription ${it.guid} removed during update, servers dropped")
+                return SubscriptionUpdateResult(skipCount = 1)
+            }
             if (count > 0) {
                 it.subscription.lastUpdated = System.currentTimeMillis()
                 // Replaced on every successful update so the box disappears if the panel stops sending the headers.

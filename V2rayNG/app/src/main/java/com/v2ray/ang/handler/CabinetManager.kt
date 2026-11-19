@@ -3,7 +3,9 @@ package com.v2ray.ang.handler
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
+import com.v2ray.ang.core.LauncherManager
 import com.v2ray.ang.dto.CabinetDeepLinkToken
 import com.v2ray.ang.dto.CabinetError
 import com.v2ray.ang.dto.CabinetResult
@@ -189,6 +191,9 @@ object CabinetManager {
         }
         MmkvManager.encodeSubscription(subId, item)
         MmkvManager.encodeCabinetString(KEY_SUB_ID, subId)
+        // Groups left by accounts used earlier on this device would keep updating and show
+        // their servers next to this account's ones.
+        removeAccountSubscriptions(keepSubId = subId)
         removeEmptyDefaultGroup()
         SubscriptionUpdater.syncOne(subId = subId)
         return subId
@@ -305,18 +310,38 @@ object CabinetManager {
     // Logout
     // ---------------------------------------------------------------------
 
-    /** Revokes the session on the server (best effort) and removes the account subscription. */
+    /**
+     * Revokes the session on the server (best effort), stops the connection and removes every
+     * account subscription with its servers, so nothing of the account keeps working after logout.
+     */
     suspend fun logout() = withContext(Dispatchers.IO) {
         readSecret(KEY_REFRESH)?.let { refresh ->
             post("/auth/logout", JsonUtil.toJson(mapOf("refresh_token" to refresh)), readSecret(KEY_ACCESS))
         }
-        getLinkedSubscriptionId()?.let { subId ->
-            if (MmkvManager.decodeSubscription(subId) != null) {
-                SettingsManager.removeSubscriptionWithDefault(subId)
-                SettingsChangeManager.makeSetupGroupTab()
-            }
+        // The running tunnel uses the account's servers; it must not outlive the session.
+        LauncherManager.stopService(AngApplication.application)
+        if (removeAccountSubscriptions(keepSubId = null)) {
+            SettingsChangeManager.makeSetupGroupTab()
         }
         logoutLocal()
+    }
+
+    /**
+     * Removes the linked subscription and every other group the app created for an account
+     * (remarks [AppConfig.CABINET_SUB_REMARKS]) except [keepSubId], cancelling their background
+     * updates. Returns true if anything was removed.
+     */
+    private fun removeAccountSubscriptions(keepSubId: String?): Boolean {
+        val linkedId = getLinkedSubscriptionId()
+        val toRemove = MmkvManager.decodeSubscriptions()
+            .filter { it.guid != keepSubId }
+            .filter { it.guid == linkedId || it.subscription.remarks == AppConfig.CABINET_SUB_REMARKS }
+            .map { it.guid }
+        toRemove.forEach { subId ->
+            LogUtil.i(AppConfig.TAG, "Cabinet: removing account subscription $subId")
+            SettingsManager.removeSubscriptionWithDefault(subId)
+        }
+        return toRemove.isNotEmpty()
     }
 
     private fun logoutLocal() {

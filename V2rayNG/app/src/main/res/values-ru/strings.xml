@@ -592,12 +592,12 @@
     <string name="account_email">Email</string>
     <string name="account_password">Пароль</string>
     <string name="account_login_email">Войти по email</string>
-    <string name="account_no_account">Нет аккаунта? Получите пробный период в боте</string>
+    <string name="account_no_account">Нет аккаунта? Неделя за 100 ₽ — оформите в боте</string>
     <string name="account_logged_in">Вы вошли</string>
     <string name="account_subscription">Подписка</string>
     <string name="account_subscription_loading">Загрузка…</string>
     <string name="account_subscription_unknown">Нажмите «Обновить подписку», чтобы загрузить статус.</string>
-    <string name="account_subscription_none">Активной подписки нет. Оформите её или получите пробный период в личном кабинете или в боте.</string>
+    <string name="account_subscription_none">Активной подписки нет. Оформите её в личном кабинете или в боте — есть неделя за 100 ₽.</string>
     <string name="account_subscription_active_until">Активна до %1$s</string>
     <string name="account_subscription_expired">Закончилась %1$s. Продлите её в личном кабинете или в боте.</string>
     <string name="account_refresh">Обновить подписку</string>
@@ -626,14 +626,14 @@
     <string name="account_trial_activate">Активировать пробный период</string>
     <string name="account_trial_activate_paid">Активировать пробный период за %1$s ₽</string>
     <string name="account_trial_used">Пробный период уже использован.</string>
-    <string name="account_trial_unavailable">Пробный период для этого аккаунта недоступен.</string>
+    <string name="account_trial_unavailable">Пробного периода нет. Начните с недели за 100 ₽ в разделе «Продлить».</string>
     <string name="account_error_trial_balance">Недостаточно средств на балансе для активации. Пополните баланс в личном кабинете.</string>
 
     <!-- VPS 007 home & support -->
     <string name="home_menu">Меню</string>
     <string name="home_welcome_title">Защищённое соединение в одно касание</string>
     <string name="home_welcome_text">Серверы в России и Европе. Войдите — приложение само загрузит вашу подписку и серверы.</string>
-    <string name="home_trial">Попробовать 3 дня бесплатно</string>
+    <string name="home_trial">Неделя за 100 ₽</string>
     <string name="home_have_account">У меня есть аккаунт — Войти</string>
     <string name="home_feature_servers_title">Серверы</string>
     <string name="home_feature_servers_text">Россия, Европа и другие локации</string>
