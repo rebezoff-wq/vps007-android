@@ -150,6 +150,11 @@ jobs:
         echo "Stable APK from: $APK"
         cp "$APK" vps007-latest.apk
         sha256sum vps007-latest.apk > vps007-latest.apk.sha256
-        gh release create "${GITHUB_REF_NAME}" \
-          V2rayNG/app/build/outputs/apk/playstore/release/*.apk vps007-latest.apk vps007-latest.apk.sha256 \
-          --repo "${GITHUB_REPOSITORY}" --title "VPS 007 ${GITHUB_REF_NAME}" --generate-notes
+        ASSETS="V2rayNG/app/build/outputs/apk/playstore/release/*.apk vps007-latest.apk vps007-latest.apk.sha256"
+        # The release may already exist when it was published from the GitHub web UI.
+        if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+          gh release upload "${GITHUB_REF_NAME}" $ASSETS --repo "${GITHUB_REPOSITORY}" --clobber
+        else
+          gh release create "${GITHUB_REF_NAME}" $ASSETS \
+            --repo "${GITHUB_REPOSITORY}" --title "VPS 007 ${GITHUB_REF_NAME}" --generate-notes
+        fi
